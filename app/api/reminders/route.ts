@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
-import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY!)
-const FROM = process.env.EMAIL_FROM ?? 'Tolio <noreply@tolio.app>'
 
 async function sendReminder(
   to: string,
@@ -13,9 +9,12 @@ async function sendReminder(
   dueDate: string,
   type: 'tuv' | 'maintenance',
 ) {
+  const { Resend } = await import('resend')
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const from = process.env.EMAIL_FROM ?? 'Tolio <noreply@tolio.app>'
   const label = type === 'tuv' ? 'TÜV' : 'Wartung'
   await resend.emails.send({
-    from: FROM,
+    from,
     to,
     subject: `[Tolio] ${label} fällig: ${assetName}`,
     html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto">
