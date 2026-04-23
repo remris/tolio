@@ -17,7 +17,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // PWA routes – require employee session cookie
   if (pathname.startsWith('/pwa')) {
     const sessionCookie = request.cookies.get('tolio_employee_session')
     if (!sessionCookie) {
@@ -26,7 +25,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Admin + API routes – require Supabase auth cookie
   if (
     pathname.startsWith('/admin') ||
     pathname.startsWith('/api/assets') ||
@@ -37,11 +35,9 @@ export function proxy(request: NextRequest) {
     const hasAuthCookie = request.cookies.getAll().some(
       (c) => c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
     )
-
     if (!hasAuthCookie) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
-
     return NextResponse.next()
   }
 
