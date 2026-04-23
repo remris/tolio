@@ -16,7 +16,7 @@ type LogEntry = {
   mileage: number | null
   note: string | null
   created_at: string
-  users: { username: string } | null
+  users: { username: string }[] | null
 }
 
 export default async function AssetDetailPage({ params }: Params) {
@@ -79,7 +79,7 @@ export default async function AssetDetailPage({ params }: Params) {
             <li key={log.id} className="px-4 py-2 text-sm">
               <div className="flex justify-between">
                 <span>
-                  <span className="font-medium">{log.users?.username ?? '–'}</span>
+                  <span className="font-medium">{log.users?.[0]?.username ?? '–'}</span>
                   {' – '}{log.action === 'check_out' ? 'ausgecheckt' : 'eingecheckt'}
                   {log.mileage != null ? ` · ${log.mileage.toLocaleString('de-DE')} km` : ''}
                 </span>

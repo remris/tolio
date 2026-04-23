@@ -136,7 +136,7 @@ export default async function DashboardPage() {
           {recentLogs?.map((log: any) => (
             <li key={log.id} className="px-4 py-3 flex justify-between text-sm">
               <span>
-                <span className="font-medium">{log.users?.username ?? '–'}</span>
+                <span className="font-medium">{log.users?.[0]?.username ?? '–'}</span>
                 {' '}{log.action === 'check_out' ? 'hat ausgecheckt' : 'hat eingecheckt'}:{' '}
                 <span className="font-medium">{log.assets?.name ?? '–'}</span>
                 {' '}({assetTypeLabel(log.assets?.type ?? '')})
