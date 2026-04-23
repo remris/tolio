@@ -1,7 +1,11 @@
 You are a senior software engineer
 
 #Task
-continue the implementation on phase 2
+
+Type error: File '/vercel/path0/app/api/export/route.ts' is not a module.
+Next.js build worker exited with code: 1 and signal: null
+ ELIFECYCLE  Command failed with exit code 1.
+Error: Command "pnpm run build" exited with 1
 
 #OUTPUT REQUIREMENTS
 -Write production-ready code
