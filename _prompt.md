@@ -1,40 +1,43 @@
 You are a senior software engineer
 
 #Task
+fix this error and make sure the build process completes successfully.
 
-2
 Collecting page data using 1 worker ...
-15:48:33.523
-Error: Missing API key. Pass it to the constructor `new Resend("re_123")`
-15:48:33.524
-at new <anonymous> (.next/server/chunks/[root-of-the-server]__0nz79c7._.js:6:31281)
-15:48:33.524
-at module evaluation (.next/server/chunks/[root-of-the-server]__0nz79c7._.js:6:30743)
-15:48:33.524
+15:55:54.521
+Error: Neither apiKey nor config.authenticator provided
+15:55:54.521
+at tG._setAuthenticator (.next/server/chunks/[root-of-the-server]__0kc5x-3._.js:1:192117)
+15:55:54.522
+at new tG (.next/server/chunks/[root-of-the-server]__0kc5x-3._.js:1:189451)
+15:55:54.522
+at module evaluation (.next/server/chunks/[root-of-the-server]__0kc5x-3._.js:1:198144)
+15:55:54.522
 at instantiateModule (.next/server/chunks/[turbopack]_runtime.js:853:9)
-15:48:33.524
+15:55:54.522
 at instantiateRuntimeModule (.next/server/chunks/[turbopack]_runtime.js:882:12)
-15:48:33.525
+15:55:54.522
 at getOrInstantiateRuntimeModule (.next/server/chunks/[turbopack]_runtime.js:895:12)
-15:48:33.525
+15:55:54.522
 at Object.m (.next/server/chunks/[turbopack]_runtime.js:898:18)
-15:48:33.525
-at Object.<anonymous> (.next/server/app/api/reminders/route.js:7:3)
-15:48:34.030
-15:48:34.031
+15:55:54.522
+at Object.<anonymous> (.next/server/app/api/webhooks/stripe/route.js:7:3)
+15:55:55.028
+15:55:55.029
 > Build error occurred
-15:48:34.033
-Error: Failed to collect page data for /api/reminders
-15:48:34.034
+15:55:55.031
+Error: Failed to collect page data for /api/webhooks/stripe
+15:55:55.032
 at ignore-listed frames {
-15:48:34.034
+15:55:55.032
 type: 'Error'
-15:48:34.034
+15:55:55.032
 }
-15:48:34.084 
+15:55:55.079 
  ELIFECYCLE  Command failed with exit code 1.
-15:48:34.104
+15:55:55.096
 Error: Command "pnpm run build" exited with 1
+
 
 #OUTPUT REQUIREMENTS
 -Write production-ready code
