@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Admin routes – require Supabase auth session
-  if (pathname.startsWith('/admin') || pathname.startsWith('/api/assets') || pathname.startsWith('/api/roles') || pathname.startsWith('/api/users')) {
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/assets') || pathname.startsWith('/api/roles') || pathname.startsWith('/api/users') || pathname.startsWith('/api/export')) {
     const { supabaseResponse, user } = await updateSession(request)
     if (!user) {
       return NextResponse.redirect(new URL('/login', request.url))

@@ -2,8 +2,17 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { assetStatusLabel, assetTypeLabel, formatDate, formatMileage } from '@/lib/utils'
 import CheckActions from '@/components/pwa/CheckActions'
+import DueDateBadge from '@/components/shared/DueDateBadge'
 
 type Params = { params: Promise<{ qr: string }> }
+
+const fuelLabels: Record<string, string> = {
+  full: 'Voll',
+  three_quarter: '¾',
+  half: '½',
+  quarter: '¼',
+  empty: 'Leer',
+}
 
 export default async function AssetPwaPage({ params }: Params) {
   const { qr } = await params
@@ -35,12 +44,28 @@ export default async function AssetPwaPage({ params }: Params) {
       </div>
 
       {asset.type === 'vehicle' && asset.vehicles && (
-        <div className="bg-white rounded-xl border p-4 space-y-2 text-sm">
-          <Row label="Kennzeichen" value={asset.vehicles.license_plate} />
+        <div className="bg-white rounded-xl border p-4 space-y-3 text-sm">
+          <Row label="Kennzeichen" value={asset.vehicles.license_plate ?? '–'} />
           <Row label="Kilometerstand" value={formatMileage(asset.vehicles.mileage)} />
-          <Row label="TÜV bis" value={formatDate(asset.vehicles.tuv_date)} />
-          <Row label="Letzte Wartung" value={formatDate(asset.vehicles.last_maintenance_at)} />
-          <Row label="Nächste Wartung" value={formatDate(asset.vehicles.next_maintenance_at)} />
+          {asset.vehicles.fuel_status && (
+            <Row label="Tankstatus" value={fuelLabels[asset.vehicles.fuel_status] ?? asset.vehicles.fuel_status} />
+          )}
+          <div className="pt-1 space-y-1.5">
+            <DueDateBadge date={asset.vehicles.tuv_date} label="TÜV" />
+            <DueDateBadge date={asset.vehicles.next_maintenance_at} label="Wartung" />
+          </div>
+        </div>
+      )}
+
+      {asset.type === 'machine' && asset.machines && (
+        <div className="bg-white rounded-xl border p-4 space-y-2 text-sm">
+          {asset.machines.manufacturer && <Row label="Hersteller" value={asset.machines.manufacturer} />}
+          {asset.machines.serial_no && <Row label="Seriennr." value={asset.machines.serial_no} />}
+          {asset.machines.next_maintenance && (
+            <div className="pt-1">
+              <DueDateBadge date={asset.machines.next_maintenance} label="Wartung" />
+            </div>
+          )}
         </div>
       )}
 
@@ -51,7 +76,12 @@ export default async function AssetPwaPage({ params }: Params) {
         </div>
       )}
 
-      <CheckActions assetId={asset.id} status={asset.status} />
+      <CheckActions
+        assetId={asset.id}
+        status={asset.status}
+        assetType={asset.type}
+        currentMileage={asset.vehicles?.mileage ?? null}
+      />
     </div>
   )
 }

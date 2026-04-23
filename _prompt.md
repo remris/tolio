@@ -1,7 +1,7 @@
 You are a senior software engineer
 
 #Task
-continue the implementation based on feature_request.md
+continue the implementation on phase 2
 
 #OUTPUT REQUIREMENTS
 -Write production-ready code

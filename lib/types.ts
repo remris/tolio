@@ -84,8 +84,21 @@ export interface AssetLog {
   user_id: string | null
   action: CheckAction
   note: string | null
+  mileage: number | null
   created_at: string
   asset?: Asset
+  user?: User
+}
+
+export interface MaintenanceRecord {
+  id: string
+  asset_id: string
+  user_id: string | null
+  performed_at: string
+  description: string | null
+  cost: number | null
+  next_due_at: string | null
+  created_at: string
   user?: User
 }
 
