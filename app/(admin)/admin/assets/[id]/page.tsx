@@ -10,9 +10,20 @@ import type { Asset, MaintenanceRecord } from '@/lib/types'
 
 type Params = { params: Promise<{ id: string }> }
 
+type LogEntry = {
+  id: string
+  action: string
+  mileage: number | null
+  note: string | null
+  created_at: string
+  users: { username: string } | null
+}
+
 export default async function AssetDetailPage({ params }: Params) {
   const { id } = await params
   const session = await getSessionUser()
+  if (!session) notFound()
+
   const supabase = await createClient()
 
   const [{ data: asset }, { data: logs }, { data: maintenance }] = await Promise.all([
@@ -20,7 +31,7 @@ export default async function AssetDetailPage({ params }: Params) {
       .from('assets')
       .select('*, vehicles(*), machines(*), tools(*)')
       .eq('id', id)
-      .eq('company_id', session!.company_id)
+      .eq('company_id', session.company_id)
       .single(),
     supabase
       .from('asset_logs')
@@ -64,7 +75,7 @@ export default async function AssetDetailPage({ params }: Params) {
       <div className="bg-white rounded-xl border shadow-sm">
         <div className="p-4 border-b font-semibold">Aktivitätslog</div>
         <ul className="divide-y">
-          {logs?.map((log: any) => (
+          {logs?.map((log: LogEntry) => (
             <li key={log.id} className="px-4 py-2 text-sm">
               <div className="flex justify-between">
                 <span>
