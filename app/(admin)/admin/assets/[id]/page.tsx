@@ -59,7 +59,7 @@ export default async function AssetDetailPage({ params }: Params) {
         <AssetQrCode qrCode={asset.qr_code} assetId={asset.id} />
       </div>
 
-      <MaintenancePanel assetId={asset.id} records={(maintenance ?? []) as MaintenanceRecord[]} />
+      <MaintenancePanel assetId={asset.id} records={(maintenance ?? []) as unknown as MaintenanceRecord[]} />
 
       <div className="bg-white rounded-xl border shadow-sm">
         <div className="p-4 border-b font-semibold">Aktivitätslog</div>

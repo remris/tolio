@@ -344,4 +344,6 @@ create policy "subscriptions_select" on subscriptions
 | asset_logs | asset_id | assets.id |
 | asset_logs | user_id | users.id |
 | subscriptions | company_id | companies.id |
+| maintenance_records | asset_id | assets.id |
+| maintenance_records | user_id | users.id |
 

@@ -53,27 +53,27 @@
 ## 🚀 Phase 2 (v1.5)
 
 ### 🔧 Wartungsmanagement
-- [ ] Wartungstermin pro Asset eintragen
-- [ ] Automatische Erinnerung (E-Mail) X Tage vor Termin
-- [ ] Wartungshistorie anzeigen
-- [ ] Status automatisch auf `maintenance` setzen
+- [x] Wartungstermin pro Asset eintragen
+- [x] Automatische Erinnerung (E-Mail) X Tage vor Termin
+- [x] Wartungshistorie anzeigen
+- [x] Status automatisch auf `maintenance` setzen
 
 ### 🚗 Fahrzeug-Tracking
-- [ ] Kilometerstand bei Check-in / Check-out aktualisieren
-- [ ] TÜV-Datum mit Countdown-Anzeige
-- [ ] Fahrer-Zuordnung (assigned_user_id)
-- [ ] Tankstatus erfassen
-- [ ] Fahrzeug-Log: Wer hat wann wie viel km gefahren
+- [x] Kilometerstand bei Check-in / Check-out aktualisieren
+- [x] TÜV-Datum mit Countdown-Anzeige
+- [x] Fahrer-Zuordnung (assigned_user_id)
+- [x] Tankstatus erfassen
+- [x] Fahrzeug-Log: Wer hat wann wie viel km gefahren
 
 ### 📊 Dashboard & Reporting
-- [ ] Übersicht: Asset-Auslastung
-- [ ] Aktuelle Ausleihen (wer hat was)
-- [ ] Bald fällige Wartungen / TÜV-Termine
-- [ ] Export: CSV / PDF
+- [x] Übersicht: Asset-Auslastung
+- [x] Aktuelle Ausleihen (wer hat was)
+- [x] Bald fällige Wartungen / TÜV-Termine
+- [x] Export: CSV (Assets, Aktivitätslog, Wartungshistorie)
 
 ### 🔔 Benachrichtigungen
-- [ ] TÜV-Erinnerung per E-Mail
-- [ ] Wartungs-Reminder per E-Mail
+- [x] TÜV-Erinnerung per E-Mail (Resend, Vercel Cron täglich 07:00)
+- [x] Wartungs-Reminder per E-Mail
 - [ ] Optional: Push-Notification via PWA
 
 ---

@@ -108,10 +108,15 @@ middleware.ts                 # Route protection + role check
 |---|---|---|
 | `/api/assets` | GET, POST | Assets abrufen / erstellen |
 | `/api/assets/[id]` | GET, PATCH, DELETE | Asset bearbeiten |
-| `/api/assets/[id]/checkin` | POST | Asset einchecken |
-| `/api/assets/[id]/checkout` | POST | Asset auschecken |
+| `/api/assets/[id]/checkin` | POST | Asset einchecken (inkl. KM, Tankstatus) |
+| `/api/assets/[id]/checkout` | POST | Asset auschecken (inkl. KM) |
+| `/api/assets/[id]/maintenance` | GET, POST | Wartungshistorie |
+| `/api/export` | GET | CSV Export (assets / logs / maintenance) |
+| `/api/reminders` | GET | Cron: Wartungs- & TÜV-Erinnerungen per E-Mail |
 | `/api/roles` | GET, POST | Rollen verwalten |
 | `/api/users` | GET, POST | Benutzer verwalten |
+| `/api/users/[id]` | GET, PATCH, DELETE | Benutzer bearbeiten |
+| `/api/auth/register` | POST | Admin-Registrierung + Firma anlegen |
 | `/api/auth/company-login` | POST | Mitarbeiter Login |
 | `/api/webhooks/stripe` | POST | Stripe Events |
 
@@ -150,5 +155,9 @@ Permission helper prüft `role_permissions` via Supabase RPC.
   - `SUPABASE_SERVICE_ROLE_KEY`
   - `STRIPE_SECRET_KEY`
   - `STRIPE_WEBHOOK_SECRET`
+  - `RESEND_API_KEY` (E-Mail Benachrichtigungen)
+  - `EMAIL_FROM` (Absender-Adresse, z. B. `Tolio <noreply@tolio.app>`)
+  - `CRON_SECRET` (Schutz des `/api/reminders` Endpunkts)
+- Vercel Cron: `/api/reminders` täglich 07:00 UTC (`vercel.json`)
 - Edge Middleware für Auth-Checks
 
