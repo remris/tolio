@@ -3,12 +3,14 @@ import { getSessionUser } from '@/lib/auth/permissions'
 import { assetTypeLabel } from '@/lib/utils'
 import DueDateBadge from '@/components/shared/DueDateBadge'
 import ExportButtons from '@/components/admin/ExportButtons'
+import { redirect } from 'next/navigation'
 
 export default async function DashboardPage() {
   const session = await getSessionUser()
-  const supabase = await createClient()
+  if (!session) redirect('/login')
 
-  const companyId = session!.company_id
+  const supabase = await createClient()
+  const companyId = session.company_id
 
   const warningDate = new Date()
   warningDate.setDate(warningDate.getDate() + 30)

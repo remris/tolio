@@ -2,15 +2,17 @@ import { createClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/permissions'
 import UsersTable from '@/components/admin/UsersTable'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function UsersPage() {
   const session = await getSessionUser()
+  if (!session) redirect('/login')
   const supabase = await createClient()
 
   const { data: users } = await supabase
     .from('users')
     .select('id, username, email, active, created_at, roles(name)')
-    .eq('company_id', session!.company_id)
+    .eq('company_id', session.company_id)
     .order('created_at', { ascending: false })
 
   return (
@@ -28,4 +30,3 @@ export default async function UsersPage() {
     </div>
   )
 }
-

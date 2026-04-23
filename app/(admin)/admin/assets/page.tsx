@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/permissions'
 import AssetTable from '@/components/admin/AssetTable'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function AssetsPage({
   searchParams,
@@ -10,12 +11,13 @@ export default async function AssetsPage({
 }) {
   const { type } = await searchParams
   const session = await getSessionUser()
+  if (!session) redirect('/login')
   const supabase = await createClient()
 
   let query = supabase
     .from('assets')
     .select('*, vehicles(*), machines(*), tools(*)')
-    .eq('company_id', session!.company_id)
+    .eq('company_id', session.company_id)
     .order('created_at', { ascending: false })
 
   if (type) query = query.eq('type', type)
