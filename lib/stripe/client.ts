@@ -14,6 +14,6 @@ export function getStripe(): Stripe {
 /** @deprecated use getStripe() */
 export const stripe = new Proxy({} as Stripe, {
   get(_target, prop) {
-    return (getStripe() as any)[prop]
+    return getStripe()[prop as keyof Stripe]
   },
 })
