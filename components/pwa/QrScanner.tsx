@@ -77,7 +77,6 @@ export default function QrScanner() {
       ctx.drawImage(video, 0, 0)
 
       try {
-        // @ts-expect-error - BarcodeDetector API
         if ('BarcodeDetector' in window) {
           // @ts-expect-error - BarcodeDetector
           const detector = new BarcodeDetector({ formats: ['qr_code'] })
