@@ -101,8 +101,8 @@ export default function QrScanner() {
   }, [handleResult, stopCamera])
 
   return (
-    <div className="flex flex-col items-center p-4 space-y-4">
-      <div className="relative w-full max-w-sm aspect-square bg-black rounded-2xl overflow-hidden">
+    <div className="flex flex-col items-center space-y-4 w-full">
+      <div className="relative w-full aspect-square bg-black overflow-hidden" style={{ maxHeight: '70vh' }}>
         <video
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover"
@@ -147,7 +147,7 @@ export default function QrScanner() {
       </div>
 
       {status === 'error' && (
-        <div className="w-full max-w-sm bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+        <div className="w-full px-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 mx-4">
           <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-red-800">{errorMsg}</p>
@@ -170,7 +170,7 @@ export default function QrScanner() {
 
       {/* Fallback: html5-qrcode hidden input for unsupported browsers */}
       {status === 'error' && (
-        <div className="w-full max-w-sm">
+        <div className="w-full px-4">
           <p className="text-xs text-gray-400 text-center mb-2">Alternativ: QR-Code-Wert eingeben</p>
           <form
             onSubmit={e => {

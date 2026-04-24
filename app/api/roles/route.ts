@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getSessionUser, requirePermission } from '@/lib/auth/permissions'
+import { getEmployeeSession } from '@/lib/auth/employee-session'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -9,26 +10,21 @@ const schema = z.object({
 })
 
 export async function GET() {
-  const session = await getSessionUser()
+  const admin = await getSessionUser()
+  const session = admin ?? (await getEmployeeSession())
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const supabase = await createClient()
+  const supabase = admin ? await createClient() : await createServiceClient()
   const { data, error } = await supabase
     .from('roles')
-    .select('*, role_permissions(permission_id, permissions(key))')
+    .select('id, name')
     .eq('company_id', session.company_id)
-    .order('created_at', { ascending: true })
+    .order('name', { ascending: true })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
 
-export async function POST(req: NextRequest) {
-  const session = await getSessionUser()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  try { requirePermission(session, 'roles.manage') }
-  catch { return NextResponse.json({ error: 'Forbidden' }, { status: 403 }) }
 
   const body = await req.json().catch(() => null)
   const parsed = schema.safeParse(body)

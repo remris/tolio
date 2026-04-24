@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getSessionUser, requirePermission } from '@/lib/auth/permissions'
+import { getEmployeeSession } from '@/lib/auth/employee-session'
 import { z } from 'zod'
 
 const createSchema = z.object({
@@ -20,20 +21,23 @@ const createSchema = z.object({
 })
 
 export async function GET(req: NextRequest) {
-  const session = await getSessionUser()
+  const adminSession = await getSessionUser()
+  const session = adminSession ?? (await getEmployeeSession())
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const supabase = await createClient()
+  const supabase = adminSession ? await createClient() : await createServiceClient()
   const { searchParams } = new URL(req.url)
   const type = searchParams.get('type')
+  const status = searchParams.get('status')
 
   let query = supabase
     .from('assets')
     .select('*, tools(*), machines(*), vehicles(*)')
     .eq('company_id', session.company_id)
-    .order('created_at', { ascending: false })
+    .order('name', { ascending: true })
 
   if (type) query = query.eq('type', type)
+  if (status) query = query.eq('status', status)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

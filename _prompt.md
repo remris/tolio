@@ -1,9 +1,8 @@
 You are a senior software engineer
 
 #Task
-Arbeite die PWA aus das diese nun voll funktionsfähig ist. Alle Funktionen müssen implementiert und getestet werden, damit die Mitarbeiter ihre Assets problemlos ausleihen und zurückgeben können. Achte darauf, dass die QR-Code-Scanfunktion zuverlässig funktioniert und die Benutzeroberfläche intuitiv gestaltet ist.
-
-#OUTPUT REQUIREMENTS
+Setze PWA wie in screnshots um Bottom navbar sollte sein Dashboard| Tools | Scannen | Admin(if admin, infos über mitarbeiter und möglichkeit mitarbeiter zu erstellen wie im screen und auch diuje abonnements page) oder Profil (infos über user und logout) 
+#OUTPUT 
 -Write production-ready code
 -Follow existing architecture
 -Use clean modular structure

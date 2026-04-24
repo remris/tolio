@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getSessionUser, requirePermission } from '@/lib/auth/permissions'
+import { getEmployeeSession } from '@/lib/auth/employee-session'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
+
+async function resolveAdminSession() {
+  const admin = await getSessionUser()
+  if (admin) return admin
+  const emp = await getEmployeeSession()
+  if (emp && emp.permissions.includes('users.create')) return emp
+  return null
+}
 
 const schema = z.object({
   username: z.string().min(2),
@@ -12,7 +21,7 @@ const schema = z.object({
 })
 
 export async function GET() {
-  const session = await getSessionUser()
+  const session = await resolveAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = await createServiceClient()
@@ -27,7 +36,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getSessionUser()
+  const session = await resolveAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try { requirePermission(session, 'users.create') }
