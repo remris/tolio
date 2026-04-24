@@ -138,3 +138,36 @@
 ### 🔐 Rollen & Rechte
 - [x] Neue Rolle anlegen mit allen Rechten ausgewählt zeigt am Ende "Keine Rechte" → Supabase-Join-Query auf `permissions(key)` umgestellt
 
+---
+
+## 📋 Neue Feature-Requests (Stand 2026-04-24)
+
+### 👤 Meine ausgecheckten Assets (User-Sicht)
+- [ ] User sieht auf dem PWA-Dashboard eine Sektion **„Meine ausgecheckten Items"** mit allen Assets, die er aktuell ausgecheckt hat
+- [ ] Von dort direkt **Zurückgeben** möglich (mit Notiz-Feld)
+- [ ] Filter auf der Inventar-Seite: **„Meine"** – zeigt nur eigene ausgecheckte Assets
+- [ ] Dashboard zeigt Schnellübersicht: Anzahl eigener Ausleihen + Liste
+
+### 🔧 Werkzeuge – Checkout-Flow
+- [ ] Beim Auschecken eines Werkzeugs: optionales **Notiz-Feld**
+- [ ] Beim Zurückgeben: optionales **Notiz-Feld** (z. B. Zustand dokumentieren)
+- [ ] Ausgecheckter User kann das Werkzeug auf **„Defekt"** setzen (mit Pflicht-Notiz)
+- [ ] Werkzeug das bereits ausgecheckt ist, kann von keinem anderen User ausgecheckt werden → klare Fehlermeldung „Bereits von [Username] ausgecheckt"
+
+### 🚗 Fahrzeuge – Checkout-Flow
+- [ ] Fahrzeug das bereits ausgecheckt ist, kann **nicht** erneut ausgecheckt werden – Sperre bis der aktuelle Nutzer zurückgibt
+- [ ] Beim Zurückgeben: **Kilometerstand** als Pflichtfeld
+- [ ] Beim Zurückgeben: **Tankstatus** auswählbar
+- [ ] User sieht welche Fahrzeuge er aktuell hat
+
+### ⚙️ Maschinen – Wartung
+- [ ] Beim Anlegen / Bearbeiten einer Maschine: **Wartungsdatum** (letzte Wartung) und **nächste Wartung** als Datumsfelder
+- [ ] Anzeige des nächsten Wartungstermins auf der Maschinendetailseite (mit farbigem Badge: grün / gelb / rot je nach Nähe)
+- [ ] Dashboard-Widget: „Bald fällige Wartungen" auch für Maschinen
+
+### 📊 PWA-Dashboard – Verbesserungen
+- [ ] Sektion **„Meine Ausleihen"**: Liste aller aktuell vom eingeloggten User ausgecheckten Assets
+- [ ] Schnell-Zurückgabe direkt vom Dashboard möglich
+- [ ] Filter/Tab: **„Alle"** vs. **„Meine"** ausgecheckten Assets
+- [ ] Statistik-Kacheln: Anzahl verfügbare Assets / Anzahl eigener Ausleihen
+

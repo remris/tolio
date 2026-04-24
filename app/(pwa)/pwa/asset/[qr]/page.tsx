@@ -159,7 +159,7 @@ export default async function AssetPwaPage({ params }: Params) {
             assetType={asset.type}
             currentMileage={asset.vehicles?.mileage ?? null}
             currentUserId={session?.id ?? null}
-            heldByUserId={null}
+            heldByUserId={heldByUserId}
           />
         </div>
       )}

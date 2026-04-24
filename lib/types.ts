@@ -64,6 +64,8 @@ export interface Machine {
   asset_id: string
   serial_no: string | null
   manufacturer: string | null
+  last_maintenance: string | null
+  next_maintenance: string | null
 }
 
 export interface Vehicle {

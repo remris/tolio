@@ -160,6 +160,16 @@ export default function PwaAssetsPage() {
             />
           </div>
           <button
+            onClick={() => setMineOnly(f => !f)}
+            className={`px-3 py-2 rounded-lg border text-sm flex items-center gap-1 transition-colors ${
+              mineOnly
+                ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                : 'border-gray-200 text-gray-500 bg-white'
+            }`}
+          >
+            Meine
+          </button>
+          <button
             onClick={() => setShowFilters(f => !f)}
             className={`p-2 rounded-lg border text-sm flex items-center gap-1 transition-colors ${
               showFilters || typeFilter || statusFilter

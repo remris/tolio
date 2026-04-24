@@ -190,6 +190,12 @@ export default function AssetForm({ asset, redirectTo }: Props) {
           <Field label="Seriennummer">
             <input type="text" value={form.serial_no} onChange={(e) => update('serial_no', e.target.value)} className={inputCls} />
           </Field>
+          <Field label="Letzte Wartung">
+            <input type="date" value={form.machine_last_maintenance} onChange={(e) => update('machine_last_maintenance', e.target.value)} className={inputCls} />
+          </Field>
+          <Field label="Nächste Wartung">
+            <input type="date" value={form.machine_next_maintenance} onChange={(e) => update('machine_next_maintenance', e.target.value)} className={inputCls} />
+          </Field>
         </>
       )}
 

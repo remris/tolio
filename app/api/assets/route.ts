@@ -82,7 +82,11 @@ export async function POST(req: NextRequest) {
   if (type === 'tool') {
     await supabase.from('tools').insert({ asset_id: asset.id })
   } else if (type === 'machine') {
-    await supabase.from('machines').insert({ asset_id: asset.id, serial_no, manufacturer })
+    await supabase.from('machines').insert({
+      asset_id: asset.id, serial_no, manufacturer,
+      last_maintenance: machine_last_maintenance ?? null,
+      next_maintenance: machine_next_maintenance ?? null,
+    })
   } else if (type === 'vehicle') {
     if (!license_plate) {
       return NextResponse.json({ error: 'Kennzeichen erforderlich.' }, { status: 400 })

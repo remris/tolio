@@ -76,10 +76,10 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       .eq('asset_id', id)
   }
 
-  if (asset.type === 'machine' && (serial_no || manufacturer)) {
+  if (asset.type === 'machine' && (serial_no !== undefined || manufacturer !== undefined || machine_last_maintenance !== undefined || machine_next_maintenance !== undefined)) {
     await supabase
       .from('machines')
-      .update({ serial_no, manufacturer })
+      .update({ serial_no, manufacturer, last_maintenance: machine_last_maintenance, next_maintenance: machine_next_maintenance })
       .eq('asset_id', id)
   }
 

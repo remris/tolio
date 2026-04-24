@@ -17,8 +17,8 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json().catch(() => ({}))
-  const mileage: number | undefined = typeof body?.mileage === 'number' ? body.mileage : undefined
-  const note: string | undefined = body?.note
+  const note: string | undefined = body?.note?.trim()
+  if (!note) return NextResponse.json({ error: 'Notiz ist erforderlich.' }, { status: 400 })
 
   const supabase = await createServiceClient()
 
@@ -30,44 +30,37 @@ export async function POST(req: NextRequest, { params }: Params) {
     .single()
 
   if (!asset) return NextResponse.json({ error: 'Asset nicht gefunden.' }, { status: 404 })
-  if (asset.status !== 'available') {
-    // Find who has it
-    const { data: lastLog } = await supabase
-      .from('asset_logs')
-      .select('user_id, users(username)')
-      .eq('asset_id', id)
-      .eq('action', 'check_out')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
-    const holder = (lastLog as any)?.users?.username ?? null
-    return NextResponse.json({
-      error: holder
-        ? `Bereits ausgecheckt von ${holder}.`
-        : 'Asset ist nicht verfügbar.',
-      holder,
-    }, { status: 409 })
+  if (asset.status !== 'in_use') {
+    return NextResponse.json({ error: 'Asset ist nicht ausgecheckt.' }, { status: 409 })
+  }
+
+  // Only the user who checked it out can report it as broken
+  const { data: lastCheckout } = await supabase
+    .from('asset_logs')
+    .select('user_id')
+    .eq('asset_id', id)
+    .eq('action', 'check_out')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (lastCheckout?.user_id && lastCheckout.user_id !== session.id) {
+    return NextResponse.json({ error: 'Nur die Person, die ausgecheckt hat, kann Defekt melden.' }, { status: 403 })
   }
 
   await supabase
     .from('assets')
-    .update({ status: 'in_use', updated_at: new Date().toISOString() })
+    .update({ status: 'broken', updated_at: new Date().toISOString() })
     .eq('id', id)
 
   await supabase.from('asset_logs').insert({
     asset_id: id,
     user_id: session.id,
-    action: 'check_out',
-    mileage: mileage ?? null,
-    note: note ?? null,
+    action: 'check_in',
+    note: `[DEFEKT] ${note}`,
+    mileage: null,
   })
-
-  // Update vehicle assigned driver + mileage
-  if (asset.type === 'vehicle') {
-    const vehicleUpdate: Record<string, unknown> = { assigned_user_id: session.id }
-    if (mileage !== undefined) vehicleUpdate.mileage = mileage
-    await supabase.from('vehicles').update(vehicleUpdate).eq('asset_id', id)
-  }
 
   return NextResponse.json({ ok: true })
 }
+
