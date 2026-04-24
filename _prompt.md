@@ -1,11 +1,8 @@
 You are a senior software engineer
 
 #Task
-Prüfe ob diese dinge erledigt sind sonst erledige sie
-### 💳 Billing Erweiterungen
-- [ ] Mehrere Subscription-Pläne (Starter / Pro / Enterprise)
-- [ ] Nutzungsbasierte Abrechnung (per Asset)
-- [ ] Rechnungen via Stripe Billing Portal
+Webpage klick auf Asset-Details Seite, um Details zu sehen nicht explizit  Details und passe an das wirklich wie bei wpa ist und überall gelcih sit am ende 
+auch hier table mit 3 unterkategorien damit auch einzelne cells da sein können die andere nciht rbauchen Zb kennzeicehn sit hier auch bei werkzeugen drin
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture

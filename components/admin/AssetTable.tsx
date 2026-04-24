@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { Asset } from '@/lib/types'
 import { assetStatusLabel, assetTypeLabel } from '@/lib/utils'
 
@@ -12,6 +12,8 @@ const statusColors: Record<string, string> = {
 }
 
 export default function AssetTable({ assets }: { assets: Asset[] }) {
+  const router = useRouter()
+
   if (!assets.length) {
     return (
       <div className="bg-white border rounded-xl p-12 text-center text-gray-400 text-sm">
@@ -29,12 +31,15 @@ export default function AssetTable({ assets }: { assets: Asset[] }) {
             <th className="text-left px-4 py-3 font-medium text-gray-600">Typ</th>
             <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
             <th className="text-left px-4 py-3 font-medium text-gray-600">Kennzeichen</th>
-            <th className="px-4 py-3" />
           </tr>
         </thead>
         <tbody className="divide-y">
           {assets.map((asset) => (
-            <tr key={asset.id} className="hover:bg-gray-50 transition-colors">
+            <tr
+              key={asset.id}
+              onClick={() => router.push(`/admin/assets/${asset.id}`)}
+              className="hover:bg-gray-50 transition-colors cursor-pointer"
+            >
               <td className="px-4 py-3 font-medium">{asset.name}</td>
               <td className="px-4 py-3 text-gray-500">{assetTypeLabel(asset.type)}</td>
               <td className="px-4 py-3">
@@ -43,12 +48,8 @@ export default function AssetTable({ assets }: { assets: Asset[] }) {
                 </span>
               </td>
               <td className="px-4 py-3 text-gray-500">
-                {asset.vehicle?.license_plate ?? '–'}
-              </td>
-              <td className="px-4 py-3 text-right">
-                <Link href={`/admin/assets/${asset.id}`} className="text-indigo-600 hover:text-indigo-800 font-medium">
-                  Details
-                </Link>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {asset.type === 'vehicle' ? ((asset as any).vehicles?.license_plate ?? '–') : '–'}
               </td>
             </tr>
           ))}
