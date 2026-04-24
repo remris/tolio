@@ -25,6 +25,12 @@ export async function GET() {
   return NextResponse.json(data)
 }
 
+export async function POST(req: NextRequest) {
+  const session = await getSessionUser()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  try { requirePermission(session, 'roles.manage') }
+  catch { return NextResponse.json({ error: 'Forbidden' }, { status: 403 }) }
 
   const body = await req.json().catch(() => null)
   const parsed = schema.safeParse(body)
@@ -43,7 +49,7 @@ export async function GET() {
 
   if (permission_ids?.length) {
     await supabase.from('role_permissions').insert(
-      permission_ids.map((pid) => ({ role_id: role.id, permission_id: pid })),
+      permission_ids.map((pid) => ({ role_id: role.id, permission_id: pid }))
     )
   }
 

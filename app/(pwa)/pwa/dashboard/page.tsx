@@ -2,146 +2,114 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Package, ArrowRight, QrCode, Layers, Wrench, Car, AlertTriangle } from 'lucide-react'
-import { assetTypeLabel } from '@/lib/utils'
+import { ArrowRight, Layers, Wrench, AlertTriangle, Activity, QrCode } from 'lucide-react'
+import { assetStatusLabel } from '@/lib/utils'
 
-interface CheckedOutAsset {
-  id: string
-  name: string
-  type: string
-  status: string
-  qr_code: string | null
-  checked_out_at: string
+interface Asset { id: string; name: string; status: string; qr_code: string | null }
+interface Stats { total: number; in_use: number; maintenance: number; broken: number }
+
+const statusBadge: Record<string, string> = {
+  available: 'bg-green-100 text-green-700 border border-green-200',
+  in_use: 'bg-blue-100 text-blue-700 border border-blue-200',
+  broken: 'bg-red-100 text-red-600 border border-red-200',
+  maintenance: 'bg-amber-100 text-amber-700 border border-amber-200',
 }
-
-interface Stats {
-  total: number
-  available: number
-  in_use: number
-  broken: number
+const statusDot: Record<string, string> = {
+  available: 'bg-green-500', in_use: 'bg-blue-500', broken: 'bg-red-500', maintenance: 'bg-amber-500',
 }
 
 export default function PwaDashboardPage() {
-  const [checkedOut, setCheckedOut] = useState<CheckedOutAsset[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
-  const [username, setUsername] = useState('')
+  const [recent, setRecent] = useState<Asset[]>([])
+  const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/assets/my').then(r => r.ok ? r.json() : []),
-      fetch('/api/auth/me').then(r => r.ok ? r.json() : null),
       fetch('/api/assets').then(r => r.ok ? r.json() : []),
-    ]).then(([my, me, all]) => {
-      setCheckedOut(my ?? [])
-      if (me?.username) setUsername(me.username)
-      if (Array.isArray(all)) {
+      fetch('/api/settings').then(r => r.ok ? r.json() : null),
+    ]).then(([assets, company]) => {
+      if (company?.name) setCompanyName(company.name)
+      if (Array.isArray(assets)) {
         setStats({
-          total: all.length,
-          available: all.filter((a: {status:string}) => a.status === 'available').length,
-          in_use: all.filter((a: {status:string}) => a.status === 'in_use').length,
-          broken: all.filter((a: {status:string}) => a.status === 'broken' || a.status === 'maintenance').length,
+          total: assets.length,
+          in_use: assets.filter((a: Asset) => a.status === 'in_use').length,
+          maintenance: assets.filter((a: Asset) => a.status === 'maintenance').length,
+          broken: assets.filter((a: Asset) => a.status === 'broken').length,
         })
+        setRecent(assets.slice(0, 5))
       }
     }).finally(() => setLoading(false))
   }, [])
 
-  const statCards = stats ? [
-    { label: 'Gesamt', value: stats.total, icon: Layers, color: 'text-gray-600', bg: 'bg-gray-50' },
-    { label: 'Verfügbar', value: stats.available, icon: Package, color: 'text-green-600', bg: 'bg-green-50' },
-    { label: 'Ausgecheckt', value: stats.in_use, icon: Wrench, color: 'text-yellow-600', bg: 'bg-yellow-50' },
-    { label: 'Defekt/Wartung', value: stats.broken, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50' },
-  ] : []
-
   return (
-    <div className="p-4 space-y-5">
-      {/* Greeting */}
+    <div className="px-4 py-5 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {username ? `Hallo, ${username} 👋` : 'Übersicht'}
-        </h1>
-        <p className="text-sm text-gray-500 mt-0.5">Dein Asset-Überblick</p>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-500 text-sm mt-0.5">{companyName ? `${companyName} · ` : ''}overview of your fleet.</p>
       </div>
 
-      {/* Stats */}
+      <Link href="/pwa/tools" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-xl font-semibold text-sm hover:bg-indigo-700 transition-colors">
+        Manage tools <ArrowRight className="w-4 h-4" />
+      </Link>
+
       {loading ? (
         <div className="grid grid-cols-2 gap-3">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 h-20 animate-pulse" />
-          ))}
+          {[1,2,3,4].map(i => <div key={i} className="bg-white rounded-2xl border border-gray-100 h-24 animate-pulse" />)}
         </div>
       ) : stats && (
         <div className="grid grid-cols-2 gap-3">
-          {statCards.map(({ label, value, icon: Icon, color, bg }) => (
-            <div key={label} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3 shadow-sm">
-              <div className={`w-9 h-9 rounded-lg ${bg} flex items-center justify-center shrink-0`}>
-                <Icon className={`w-4 h-4 ${color}`} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900 leading-none">{value}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{label}</p>
-              </div>
-            </div>
-          ))}
+          <StatCard label="Total tools" value={stats.total} icon={<Layers className="w-5 h-5 text-gray-400" />} />
+          <StatCard label="Active checkouts" value={stats.in_use} icon={<Wrench className="w-5 h-5 text-blue-400" />} />
+          <StatCard label="Maintenance due" value={stats.maintenance} icon={<AlertTriangle className="w-5 h-5 text-amber-400" />} />
+          <StatCard label="Broken" value={stats.broken} icon={<Activity className="w-5 h-5 text-red-400" />} />
         </div>
       )}
 
-      {/* Scan CTA */}
-      <Link
-        href="/pwa/scan"
-        className="flex items-center justify-between bg-indigo-600 text-white rounded-xl p-4 shadow-md shadow-indigo-200 active:bg-indigo-700 transition-colors"
-      >
-        <div>
-          <p className="font-semibold">QR-Code scannen</p>
-          <p className="text-xs text-indigo-200 mt-0.5">Asset schnell aus- oder einchecken</p>
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <span className="font-semibold text-gray-900">Recent tools</span>
+          <Link href="/pwa/tools" className="text-sm text-gray-500 hover:text-gray-700">View all</Link>
         </div>
-        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-          <QrCode className="w-5 h-5" />
-        </div>
-      </Link>
-
-      {/* My checked-out assets */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <p className="font-semibold text-gray-900 text-sm">Meine ausgecheckten Assets</p>
-          <Link href="/pwa/assets" className="text-xs text-indigo-600 font-medium">Alle anzeigen</Link>
-        </div>
-
         {loading ? (
-          <div className="space-y-2">
-            {[1,2].map(i => <div key={i} className="bg-white rounded-xl h-16 animate-pulse border border-gray-100" />)}
+          <div className="divide-y divide-gray-100">
+            {[1,2,3].map(i => <div key={i} className="h-12 px-4 py-2 flex items-center"><div className="h-4 bg-gray-100 rounded w-2/3 animate-pulse" /></div>)}
           </div>
-        ) : checkedOut.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-5 text-center">
-            <p className="text-sm text-gray-500">Keine ausgecheckten Assets</p>
+        ) : recent.length === 0 ? (
+          <div className="flex flex-col items-center py-10 gap-2">
+            <QrCode className="w-8 h-8 text-gray-300" />
+            <p className="text-center text-gray-400 text-sm">Noch keine Assets</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {checkedOut.map(asset => (
+          <div className="divide-y divide-gray-100">
+            {recent.map(asset => (
               <Link
                 key={asset.id}
                 href={`/pwa/asset/${asset.qr_code ?? asset.id}`}
-                className="bg-white rounded-xl border border-gray-100 p-3.5 flex items-center justify-between active:bg-gray-50"
+                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 active:bg-gray-100"
               >
-                <div className="min-w-0">
-                  <p className="font-semibold text-gray-900 text-sm truncate">{asset.name}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-xs text-gray-400">{assetTypeLabel(asset.type as 'tool' | 'machine' | 'vehicle')}</span>
-                    <span className="text-xs text-gray-300">·</span>
-                    <span className="text-xs text-yellow-600 font-medium">Ausgecheckt</span>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {new Date(asset.checked_out_at).toLocaleString('de-DE', {
-                      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-                    })} Uhr
-                  </p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-gray-300 shrink-0 ml-2" />
+                <span className="text-sm text-gray-800 font-medium">{asset.name}</span>
+                <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${statusBadge[asset.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${statusDot[asset.status] ?? 'bg-gray-400'}`} />
+                  {assetStatusLabel(asset.status)}
+                </span>
               </Link>
             ))}
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function StatCard({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+      <div className="flex items-start justify-between mb-2">
+        <span className="text-sm text-gray-500">{label}</span>
+        {icon}
+      </div>
+      <p className="text-3xl font-bold text-gray-900">{value}</p>
     </div>
   )
 }
