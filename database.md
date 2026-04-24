@@ -5,6 +5,7 @@
 ```
 companies
   ├── users (company_id)
+  │     └── push_subscriptions (user_id, company_id)
   ├── roles (company_id)
   ├── assets (company_id)
   └── subscriptions (company_id)
@@ -346,4 +347,6 @@ create policy "subscriptions_select" on subscriptions
 | subscriptions | company_id | companies.id |
 | maintenance_records | asset_id | assets.id |
 | maintenance_records | user_id | users.id |
+| push_subscriptions | user_id | users.id |
+| push_subscriptions | company_id | companies.id |
 

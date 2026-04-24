@@ -112,7 +112,8 @@ middleware.ts                 # Route protection + role check
 | `/api/assets/[id]/checkout` | POST | Asset auschecken (inkl. KM) |
 | `/api/assets/[id]/maintenance` | GET, POST | Wartungshistorie |
 | `/api/export` | GET | CSV Export (assets / logs / maintenance) |
-| `/api/reminders` | GET | Cron: Wartungs- & TÜV-Erinnerungen per E-Mail |
+| `/api/reminders` | GET | Cron: Wartungs- & TÜV-Erinnerungen per E-Mail + Push |
+| `/api/push/subscribe` | POST, DELETE | PWA Push-Subscription speichern / entfernen |
 | `/api/roles` | GET, POST | Rollen verwalten |
 | `/api/users` | GET, POST | Benutzer verwalten |
 | `/api/users/[id]` | GET, PATCH, DELETE | Benutzer bearbeiten |
@@ -158,6 +159,9 @@ Permission helper prüft `role_permissions` via Supabase RPC.
   - `RESEND_API_KEY` (E-Mail Benachrichtigungen)
   - `EMAIL_FROM` (Absender-Adresse, z. B. `Tolio <noreply@tolio.app>`)
   - `CRON_SECRET` (Schutz des `/api/reminders` Endpunkts)
+  - `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (VAPID Public Key für Push)
+  - `VAPID_PRIVATE_KEY` (VAPID Private Key für Push)
+  - `VAPID_SUBJECT` (z. B. `mailto:support@tolio.app`)
 - Vercel Cron: `/api/reminders` täglich 07:00 UTC (`vercel.json`)
 - Edge Middleware für Auth-Checks
 

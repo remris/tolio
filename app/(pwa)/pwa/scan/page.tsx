@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Html5QrcodeScanner } from 'html5-qrcode'
+import PushSubscribeButton from '@/components/pwa/PushSubscribeButton'
 
 export default function ScanPage() {
   const router = useRouter()
@@ -40,7 +41,10 @@ export default function ScanPage() {
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 p-6">
-      <h1 className="text-xl font-bold mb-6">QR-Code scannen</h1>
+      <h1 className="text-xl font-bold mb-4">QR-Code scannen</h1>
+      <div className="mb-4">
+        <PushSubscribeButton />
+      </div>
       <div id="qr-reader" className="w-full max-w-sm rounded-xl overflow-hidden" />
       {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
     </div>

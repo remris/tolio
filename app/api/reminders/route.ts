@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
+import { sendPushNotification } from '@/lib/push/client'
+
+async function sendPushToCompany(
+  supabase: Awaited<ReturnType<typeof createServiceClient>>,
+  companyId: string,
+  title: string,
+  body: string,
+  url: string,
+) {
+  const { data: subs } = await supabase
+    .from('push_subscriptions')
+    .select('endpoint, p256dh, auth')
+    .eq('company_id', companyId)
+  for (const sub of subs ?? []) {
+    try { await sendPushNotification(sub, { title, body, url }) } catch {}
+  }
+}
 
 async function sendReminder(
   to: string,
@@ -69,6 +86,7 @@ export async function GET(req: NextRequest) {
         try { await sendReminder(email, company?.name ?? '', asset.name, formatDate(v.tuv_date), 'tuv'); sent++ }
         catch (e: any) { errors.push(e.message) }
       }
+      await sendPushToCompany(supabase, asset.company_id, '⚠️ TÜV fällig', `${asset.name} – TÜV am ${formatDate(v.tuv_date)}`, '/admin/dashboard')
     }
 
     if (v.next_maintenance_at && v.next_maintenance_at >= today && v.next_maintenance_at <= warnIso) {
@@ -76,6 +94,7 @@ export async function GET(req: NextRequest) {
         try { await sendReminder(email, company?.name ?? '', asset.name, formatDate(v.next_maintenance_at), 'maintenance'); sent++ }
         catch (e: any) { errors.push(e.message) }
       }
+      await sendPushToCompany(supabase, asset.company_id, '⚠️ Wartung fällig', `${asset.name} – Wartung am ${formatDate(v.next_maintenance_at)}`, '/admin/dashboard')
     }
   }
 
@@ -107,6 +126,7 @@ export async function GET(req: NextRequest) {
       try { await sendReminder(email, company?.name ?? '', asset.name, formatDate(m.next_maintenance), 'maintenance'); sent++ }
       catch (e: any) { errors.push(e.message) }
     }
+    await sendPushToCompany(supabase, asset.company_id, '⚠️ Wartung fällig', `${asset.name} – Wartung am ${formatDate(m.next_maintenance)}`, '/admin/dashboard')
   }
 
   return NextResponse.json({ ok: true, sent, errors })

@@ -74,7 +74,7 @@
 ### 🔔 Benachrichtigungen
 - [x] TÜV-Erinnerung per E-Mail (Resend, Vercel Cron täglich 07:00)
 - [x] Wartungs-Reminder per E-Mail
-- [ ] Optional: Push-Notification via PWA
+- [x] Optional: Push-Notification via PWA
 
 ---
 
