@@ -1,9 +1,21 @@
 You are a senior software engineer
 
 #Task
-Beim hinzufügen eines Tools sollte ich auch Fotos 1-3 hinzufügen können Tools nennen wir assets und diese haben 3 kategorien Werkzeuge dann Maschinen und dann Fahrzeuge, Admin Employyee kann noch nicht detail von employee sehen und dann ggf bearbeiten speeren oder löscehnn, Als 5ten Bottom nav punkt könnten wir dann noch die Historie einbauen also Dashboard Assets Scannen Historie Admin bzw Profil jenachdem was man ist. Detail von einem WErkzeug Fahrzeug bzw Maschine sollte dann auch vorahdne sein wenn ich eins anlege. aktuell kann ich ind er wpa keins anlegen  Unauthoreizs und auch Add  a new tool is overlapped by the bottomnavbar.
-Screenshots zeigen detail screen von Werkzeug zum beispiel hier sollte man es ja auch auschecken können und ersetzen bzw zurücklegen können. das brauchen wir vemrutlich bei maschinen nciht aber bei fahrzeugen können wir das wieder so übernehmen. und zur bezeichnung Assets überlege dir waws vll nehemn wir auch ein Bestand
-Flow user chekct ein werkzeug doer fahrzeug aus und nur dieser kann es wieder returnen. löschen und maintainen sind extra rechte die man haben muss.
+trage das alle auch mal in die featurereuqest.md ein damit es nicht verloren geht.
+MitarbeiterLogin und REgister haben alten black style (ändern)
+pwa Assets umbennen zu Inventar.
+Betandsseite in 3 kategorien (einklappbar unterteilen)
+MWerkzeug 
+Maschinen
+Fahrzeuge
+
+BNeim Auschecken anderes icon und es kommt "Asset nicht gefudnen".klick auf bearbeiten leitet zu login .
+Beim anlegen neues Assets sollten mehr inforamtionen eingegeben werden können, basierend auf ausgewähltem Typen Also FAhrezug Maschine Werkzeug 
+Employyees detail page fehlt noch 
+
+Abonenment öffnen leitet zu login page
+anlegen einer neuen rolle und alle rechte ausgewählt steht am ende nur dran Keine REchte 
+
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture
@@ -11,4 +23,4 @@ Flow user chekct ein werkzeug doer fahrzeug aus und nur dieser kann es wieder re
 -Include error handling
 -Keep code minimal and correct
 -No explanations, only code
--Update feature_request.md database.md context.md an architecture.md if necessary
+-Update feature_request.md 

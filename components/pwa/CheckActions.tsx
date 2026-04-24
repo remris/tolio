@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AssetStatus, AssetType } from '@/lib/types'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle, LogOut, LogIn } from 'lucide-react'
 
 interface Props {
   assetId: string
@@ -148,7 +148,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
           disabled={loading}
           className="w-full bg-indigo-600 text-white py-3.5 rounded-xl text-base font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Bitte warten…' : '📤 Auschecken'}
+          {loading ? 'Bitte warten…' : <span className="flex items-center justify-center gap-2"><LogOut className="w-5 h-5" /> Auschecken</span>}
         </button>
       )}
       {status === 'in_use' && canReturn && (
@@ -157,7 +157,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
           disabled={loading}
           className="w-full bg-green-600 text-white py-3.5 rounded-xl text-base font-semibold hover:bg-green-700 disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Bitte warten…' : '📥 Einchecken'}
+          {loading ? 'Bitte warten…' : <span className="flex items-center justify-center gap-2"><LogIn className="w-5 h-5" /> Einchecken</span>}
         </button>
       )}
     </div>

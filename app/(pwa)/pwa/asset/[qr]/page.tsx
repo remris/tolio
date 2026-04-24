@@ -168,6 +168,7 @@ export default async function AssetPwaPage({ params }: Params) {
       {(canEdit || canMaintain || canDelete) && (
         <AssetDetailActions
           assetId={asset.id}
+          assetQr={asset.qr_code}
           canEdit={canEdit}
           canMaintain={canMaintain}
           canDelete={canDelete}

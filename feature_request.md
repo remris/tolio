@@ -110,3 +110,31 @@
 - [ ] Nutzungsbasierte Abrechnung (per Asset)
 - [ ] Rechnungen via Stripe Billing Portal
 
+---
+
+## 🐛 Bekannte Bugs & offene Aufgaben (Stand 2026-04-24)
+
+### 🎨 Styling / UI
+- [x] MitarbeiterLogin (`/company-login`) und Register (`/register`) haben alten schwarzen Style → auf neues Design (hell/modern) anpassen
+
+### 📱 PWA – Umbenennung & Navigation
+- [x] PWA: "Assets" in der Navigation umbenennen zu **Inventar**
+- [x] Bestandsseite in 3 einklappbare Kategorien unterteilen: **Werkzeuge**, **Maschinen**, **Fahrzeuge**
+
+### 📦 Asset-Verwaltung
+- [x] Beim Auschecken falsches Icon + Fehlermeldung "Asset nicht gefunden" → Icon und Logik korrigieren (checkout/checkin nutzen jetzt `createServiceClient()`)
+- [x] Klick auf "Bearbeiten" eines Assets leitet zum Login → PWA-Edit-Seite `/pwa/asset/[qr]/edit` angelegt
+- [ ] Beim Anlegen eines neuen Assets mehr Felder je nach Typ anzeigen:
+  - Fahrzeug: Kennzeichen, Kilometerstand, TÜV-Datum, Tankstatus, etc.
+  - Maschine: Seriennummer, Wartungsintervall, etc.
+  - Werkzeug: Seriennummer, Zustand, etc.
+
+### 👤 Mitarbeiter
+- [x] Mitarbeiter-Detailseite (Admin-Sicht): Profil-Header mit Avatar, Status-Badge und Rolle ergänzt
+
+### 💳 Abonnement
+- [x] Abonnement-Seite öffnen leitet zur Login-Seite → neue Seite `/admin/billing` angelegt
+
+### 🔐 Rollen & Rechte
+- [x] Neue Rolle anlegen mit allen Rechten ausgewählt zeigt am Ende "Keine Rechte" → Supabase-Join-Query auf `permissions(key)` umgestellt
+

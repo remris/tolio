@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface Permission { id: string; key: string }
-interface Role { id: string; name: string; role_permissions: { permission_id: string }[] }
+interface RolePermission { permission_id: string; permissions?: { key: string } | { key: string }[] | null }
+interface Role { id: string; name: string; role_permissions: RolePermission[] }
 
 export default function RolesManager({ roles, permissions }: { roles: Role[]; permissions: Permission[] }) {
   const router = useRouter()
@@ -48,7 +49,11 @@ export default function RolesManager({ roles, permissions }: { roles: Role[]; pe
                 <p className="font-medium">{role.name}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
                   {role.role_permissions
-                    .map((rp) => permissions.find((p) => p.id === rp.permission_id)?.key)
+                    .map((rp) => {
+                      const p = rp.permissions
+                      if (!p) return permissions.find((x) => x.id === rp.permission_id)?.key
+                      return Array.isArray(p) ? p[0]?.key : p.key
+                    })
                     .filter(Boolean)
                     .join(', ') || 'Keine Rechte'}
                 </p>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
-import { Search, Filter, ArrowRight, Loader2, Plus, X, ImagePlus } from 'lucide-react'
+import { Search, Filter, ArrowRight, Loader2, Plus, X, ImagePlus, Wrench, Cog, Truck, ChevronDown, ChevronRight } from 'lucide-react'
 import { assetTypeLabel, assetStatusLabel } from '@/lib/utils'
 
 interface Asset {
@@ -48,6 +48,7 @@ export default function PwaAssetsPage() {
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
+  const [collapsedCats, setCollapsedCats] = useState<Record<string, boolean>>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -135,7 +136,7 @@ export default function PwaAssetsPage() {
       <div className="px-4 pt-5 pb-3 bg-gray-50 border-b border-gray-100">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Assets</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Inventar</h1>
             <p className="text-gray-500 text-sm mt-0.5">{assets.length} im Bestand</p>
           </div>
           {canCreate && (
@@ -201,24 +202,52 @@ export default function PwaAssetsPage() {
           <div className="text-center py-16 text-gray-400 text-sm">Keine Assets gefunden</div>
         ) : (
           <div className="divide-y divide-gray-100">
-            {filtered.map(asset => (
-              <Link
-                key={asset.id}
-                href={`/pwa/asset/${asset.qr_code ?? asset.id}`}
-                className="flex items-center justify-between px-4 py-3.5 bg-white hover:bg-gray-50 transition-colors active:bg-gray-100"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-gray-900 text-sm truncate">{asset.name}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-gray-400">{assetTypeLabel(asset.type)}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[asset.status]}`}>
-                      {assetStatusLabel(asset.status)}
-                    </span>
-                  </div>
+            {[
+              { type: 'tool', label: 'Werkzeuge', Icon: Wrench },
+              { type: 'machine', label: 'Maschinen', Icon: Cog },
+              { type: 'vehicle', label: 'Fahrzeuge', Icon: Truck },
+            ].map(({ type, label, Icon }) => {
+              const group = filtered.filter(a => a.type === type)
+              if (group.length === 0 && (typeFilter && typeFilter !== type)) return null
+              const isOpen = !collapsedCats[type]
+              return (
+                <div key={type}>
+                  <button
+                    onClick={() => setCollapsedCats(c => ({ ...c, [type]: !c[type] }))}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon className="w-4 h-4 text-indigo-500" />
+                      <span className="font-semibold text-sm text-gray-700">{label}</span>
+                      <span className="text-xs text-gray-400 bg-gray-200 rounded-full px-2 py-0.5">{group.length}</span>
+                    </div>
+                    {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                  </button>
+                  {isOpen && group.length > 0 && (
+                    <div className="divide-y divide-gray-50">
+                      {group.map(asset => (
+                        <Link
+                          key={asset.id}
+                          href={`/pwa/asset/${asset.qr_code ?? asset.id}`}
+                          className="flex items-center justify-between px-4 py-3.5 bg-white hover:bg-gray-50 transition-colors active:bg-gray-100"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-gray-900 text-sm truncate">{asset.name}</p>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[asset.status]}`}>
+                              {assetStatusLabel(asset.status)}
+                            </span>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-gray-300 shrink-0 ml-2" />
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  {isOpen && group.length === 0 && (
+                    <p className="px-4 py-3 text-xs text-gray-400 italic">Keine Einträge</p>
+                  )}
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-300 shrink-0 ml-2" />
-              </Link>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

@@ -7,9 +7,10 @@ import { ImagePlus, X } from 'lucide-react'
 
 interface Props {
   asset?: Asset
+  redirectTo?: string
 }
 
-export default function AssetForm({ asset }: Props) {
+export default function AssetForm({ asset, redirectTo }: Props) {
   const router = useRouter()
   const isEdit = !!asset
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -91,7 +92,7 @@ export default function AssetForm({ asset }: Props) {
       await fetch(`/api/assets/${assetId}/photos`, { method: 'POST', body: fd })
     }
 
-    router.push('/admin/assets')
+    router.push(redirectTo ?? '/admin/assets')
     router.refresh()
   }
 

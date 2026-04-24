@@ -11,7 +11,7 @@ export default async function RolesPage() {
   const [{ data: roles }, { data: permissions }] = await Promise.all([
     supabase
       .from('roles')
-      .select('id, name, role_permissions(permission_id)')
+      .select('id, name, role_permissions(permission_id, permissions(key))')
       .eq('company_id', session.company_id),
     supabase.from('permissions').select('id, key').order('key'),
   ])

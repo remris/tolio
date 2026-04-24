@@ -45,7 +45,7 @@ export default function CompanyLoginPage() {
               required
               value={form[field]}
               onChange={(e) => update(field, e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
             />
           </div>
         ))}
@@ -53,7 +53,7 @@ export default function CompanyLoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-black text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+          className="w-full bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
         >
           {loading ? 'Anmelden...' : 'Anmelden'}
         </button>

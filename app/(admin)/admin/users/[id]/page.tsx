@@ -30,10 +30,32 @@ export default async function EditUserPage({ params }: Params) {
       .limit(10),
   ])
   if (!user) notFound()
+
+  const roleName = roles?.find(r => r.id === user.role_id)?.name ?? '–'
+
   return (
     <div className="max-w-lg space-y-8">
+      {/* Profile header */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
+        <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+          <span className="text-xl font-bold text-indigo-600">{user.username.slice(0, 2).toUpperCase()}</span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl font-bold text-gray-900 truncate">{user.username}</h1>
+          {user.email && <p className="text-sm text-gray-500 truncate">{user.email}</p>}
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${user.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              {user.active ? 'Aktiv' : 'Gesperrt'}
+            </span>
+            {roleName !== '–' && (
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-50 text-indigo-700">{roleName}</span>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div>
-        <h1 className="text-2xl font-bold mb-6">Mitarbeiter bearbeiten</h1>
+        <h2 className="text-lg font-semibold mb-4">Stammdaten bearbeiten</h2>
         <UserForm roles={roles ?? []} user={user} />
       </div>
 

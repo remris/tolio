@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/permissions'
 import { getEmployeeSession } from '@/lib/auth/employee-session'
 
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   const mileage: number | undefined = typeof body?.mileage === 'number' ? body.mileage : undefined
   const note: string | undefined = body?.note
 
-  const supabase = await createClient()
+  const supabase = await createServiceClient()
 
   const { data: asset } = await supabase
     .from('assets')

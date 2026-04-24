@@ -30,7 +30,7 @@ export default function PwaBottomNav() {
 
   const items = [
     { href: '/pwa/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { href: '/pwa/assets', icon: Package, label: 'Assets' },
+    { href: '/pwa/assets', icon: Package, label: 'Inventar' },
     { href: '/pwa/scan', icon: ScanLine, label: 'Scannen' },
     { href: '/pwa/history', icon: History, label: 'Historie' },
     adminMode

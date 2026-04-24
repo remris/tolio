@@ -7,12 +7,13 @@ import Link from 'next/link'
 
 interface Props {
   assetId: string
+  assetQr?: string | null
   canEdit: boolean
   canMaintain: boolean
   canDelete: boolean
 }
 
-export default function AssetDetailActions({ assetId, canEdit, canMaintain, canDelete }: Props) {
+export default function AssetDetailActions({ assetId, assetQr, canEdit, canMaintain, canDelete }: Props) {
   const router = useRouter()
   const [deleting, setDeleting] = useState(false)
   const [maintaining, setMaintaining] = useState(false)
@@ -54,7 +55,7 @@ export default function AssetDetailActions({ assetId, canEdit, canMaintain, canD
       <div className="flex flex-wrap gap-2">
         {canEdit && (
           <Link
-            href={`/admin/assets/${assetId}/edit`}
+            href={`/pwa/asset/${assetQr ?? assetId}/edit`}
             className="flex items-center gap-1.5 text-sm border border-gray-200 rounded-xl px-4 py-2.5 text-gray-700 hover:bg-gray-50 font-medium"
           >
             <Pencil className="w-4 h-4" /> Bearbeiten
