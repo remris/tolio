@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AssetStatus, AssetType } from '@/lib/types'
 import { CheckCircle, XCircle, LogOut, LogIn, AlertTriangle } from 'lucide-react'
+import PhotoPicker from './PhotoPicker'
 
 interface Props {
   assetId: string
@@ -14,6 +15,13 @@ interface Props {
   heldByUserId?: string | null
 }
 
+async function uploadPhotos(assetId: string, logId: string, photos: File[]) {
+  if (!photos.length || !logId) return
+  const fd = new FormData()
+  photos.forEach(f => fd.append('photos', f))
+  await fetch(`/api/assets/${assetId}/log-photos?log_id=${logId}`, { method: 'POST', body: fd })
+}
+
 export default function CheckActions({ assetId, status, assetType, currentMileage, currentUserId, heldByUserId }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -22,8 +30,12 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
   const [mileage, setMileage] = useState('')
   const [fuelStatus, setFuelStatus] = useState('')
   const [note, setNote] = useState('')
+  const [photos, setPhotos] = useState<File[]>([])
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [showBrokenForm, setShowBrokenForm] = useState(false)
   const [brokenNote, setBrokenNote] = useState('')
+  const [brokenPhotos, setBrokenPhotos] = useState<File[]>([])
+  const [brokenPreviews, setBrokenPreviews] = useState<string[]>([])
 
   const isVehicle = assetType === 'vehicle'
   const isTool = assetType === 'tool'
@@ -51,8 +63,14 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
     })
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Fehler.'); setLoading(false); return }
+
+    if (data.log_id && photos.length > 0) {
+      await uploadPhotos(assetId, data.log_id, photos)
+    }
+
     setDone(action)
     setLoading(false)
+    router.refresh()
     setTimeout(() => router.push('/pwa/assets'), 1500)
   }
 
@@ -67,8 +85,14 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
     })
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Fehler.'); setLoading(false); return }
+
+    if (data.log_id && brokenPhotos.length > 0) {
+      await uploadPhotos(assetId, data.log_id, brokenPhotos)
+    }
+
     setDone('broken')
     setLoading(false)
+    router.refresh()
     setTimeout(() => router.push('/pwa/assets'), 1500)
   }
 
@@ -109,7 +133,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
       <div className="space-y-4">
         <p className="font-semibold text-red-600 text-xs uppercase tracking-wider">Defekt melden</p>
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1.5">Beschreibung des Defekts *</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Beschreibung *</label>
           <textarea
             value={brokenNote}
             onChange={e => setBrokenNote(e.target.value)}
@@ -118,6 +142,11 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
             className={inputCls + ' resize-none'}
           />
         </div>
+        <PhotoPicker
+          photos={brokenPhotos}
+          previews={brokenPreviews}
+          onChange={(p, pv) => { setBrokenPhotos(p); setBrokenPreviews(pv) }}
+        />
         {error && (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
             <XCircle className="w-4 h-4 text-red-500 shrink-0" />
@@ -176,6 +205,12 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
           className={inputCls}
         />
       </div>
+
+      <PhotoPicker
+        photos={photos}
+        previews={photoPreviews}
+        onChange={(p, pv) => { setPhotos(p); setPhotoPreviews(pv) }}
+      />
 
       {error && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">

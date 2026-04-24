@@ -1,7 +1,7 @@
 You are a senior software engineer
 
 #Task
-starte nun mit der implementierung 
+Beim auschekcen zurückgeben oer dfefekt melden sollte es auch möglich sein imgs hinzuzufügen.
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture

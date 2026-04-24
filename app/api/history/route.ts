@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   let logsQuery = supabase
     .from('asset_logs')
-    .select('id, asset_id, user_id, action, note, mileage, created_at, assets(name, type), users(username)')
+    .select('id, asset_id, user_id, action, note, mileage, fuel_status, photo_urls, created_at, assets(name, type), users(username)')
     .order('created_at', { ascending: false })
     .limit(100)
 

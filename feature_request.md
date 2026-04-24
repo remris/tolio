@@ -143,31 +143,42 @@
 ## 📋 Neue Feature-Requests (Stand 2026-04-24)
 
 ### 👤 Meine ausgecheckten Assets (User-Sicht)
-- [ ] User sieht auf dem PWA-Dashboard eine Sektion **„Meine ausgecheckten Items"** mit allen Assets, die er aktuell ausgecheckt hat
-- [ ] Von dort direkt **Zurückgeben** möglich (mit Notiz-Feld)
-- [ ] Filter auf der Inventar-Seite: **„Meine"** – zeigt nur eigene ausgecheckte Assets
-- [ ] Dashboard zeigt Schnellübersicht: Anzahl eigener Ausleihen + Liste
+- [x] User sieht auf dem PWA-Dashboard eine Sektion **„Meine ausgecheckten Items"** mit allen Assets, die er aktuell ausgecheckt hat
+- [x] Von dort direkt **Zurückgeben** möglich (mit Notiz-Feld) + Doppel-Submit-Schutz
+- [x] Filter auf der Inventar-Seite: **„Meine"** – zeigt nur eigene ausgecheckte Assets
+- [x] Dashboard zeigt Schnellübersicht: Anzahl eigener Ausleihen + Liste
 
 ### 🔧 Werkzeuge – Checkout-Flow
-- [ ] Beim Auschecken eines Werkzeugs: optionales **Notiz-Feld**
-- [ ] Beim Zurückgeben: optionales **Notiz-Feld** (z. B. Zustand dokumentieren)
-- [ ] Ausgecheckter User kann das Werkzeug auf **„Defekt"** setzen (mit Pflicht-Notiz)
-- [ ] Werkzeug das bereits ausgecheckt ist, kann von keinem anderen User ausgecheckt werden → klare Fehlermeldung „Bereits von [Username] ausgecheckt"
+- [x] Beim Auschecken eines Werkzeugs: optionales **Notiz-Feld**
+- [x] Beim Zurückgeben: optionales **Notiz-Feld**
+- [x] Ausgecheckter User kann das Werkzeug auf **„Defekt"** setzen (mit Pflicht-Notiz)
+- [x] Werkzeug das bereits ausgecheckt ist → Fehlermeldung „Bereits ausgecheckt von [Username]"
 
 ### 🚗 Fahrzeuge – Checkout-Flow
-- [ ] Fahrzeug das bereits ausgecheckt ist, kann **nicht** erneut ausgecheckt werden – Sperre bis der aktuelle Nutzer zurückgibt
-- [ ] Beim Zurückgeben: **Kilometerstand** als Pflichtfeld
-- [ ] Beim Zurückgeben: **Tankstatus** auswählbar
-- [ ] User sieht welche Fahrzeuge er aktuell hat
+- [x] Doppel-Checkout-Sperre mit Username-Hinweis
+- [x] Kilometerstand als Pflichtfeld beim Zurückgeben (NaN-Validierung + DB-Fix)
+- [x] Tankstatus auswählbar beim Zurückgeben – wird in `asset_logs.fuel_status` gespeichert
+- [x] DB-Migration 007: `fuel_status text` zu `vehicles` + `asset_logs`, `assigned_user_id` Rename
 
 ### ⚙️ Maschinen – Wartung
-- [ ] Beim Anlegen / Bearbeiten einer Maschine: **Wartungsdatum** (letzte Wartung) und **nächste Wartung** als Datumsfelder
-- [ ] Anzeige des nächsten Wartungstermins auf der Maschinendetailseite (mit farbigem Badge: grün / gelb / rot je nach Nähe)
-- [ ] Dashboard-Widget: „Bald fällige Wartungen" auch für Maschinen
+- [x] Letzte Wartung + Nächste Wartung als Datumsfelder beim Anlegen/Bearbeiten
+- [ ] Farbiger Badge je nach Nähe des Wartungstermins (grün/gelb/rot)
+- [ ] Dashboard-Widget: „Bald fällige Wartungen" für Maschinen
 
 ### 📊 PWA-Dashboard – Verbesserungen
-- [ ] Sektion **„Meine Ausleihen"**: Liste aller aktuell vom eingeloggten User ausgecheckten Assets
-- [ ] Schnell-Zurückgabe direkt vom Dashboard möglich
-- [ ] Filter/Tab: **„Alle"** vs. **„Meine"** ausgecheckten Assets
-- [ ] Statistik-Kacheln: Anzahl verfügbare Assets / Anzahl eigener Ausleihen
+- [x] Sektion „Meine Ausleihen" mit Schnell-Zurückgabe
+- [x] Statistik-Kacheln: Gesamt / Verfügbar / Ausgecheckt / Defekt+Wartung
+- [x] Personalisierter Begrüßungstext mit Username
+
+### 📜 Historie
+- [x] Kilometerstand + Tankstatus pro Log-Eintrag sichtbar (inline in Liste)
+- [x] Klick auf Eintrag öffnet **Detail-Popup** mit allen Infos (Aktion, Mitarbeiter, Zeit, km, Tank, Notiz)
+- [x] Defekt-Meldungen werden farblich hervorgehoben (🔴)
+- [x] `router.refresh()` nach Checkout/Checkin/Defekt → Seite zeigt sofort aktuellen Status, verhindert Doppel-Aktion
+
+### 📷 Fotos beim Checkout / Checkin / Defekt
+- [x] Beim Auschecken, Zurückgeben und Defekt-Melden: bis zu 3 Fotos anhängen
+- [x] Fotos werden in Supabase Storage (`asset-photos/logs/`) gespeichert und in `asset_logs.photo_urls` referenziert (Migration 008)
+- [x] In der Historie und im Detail-Popup werden die Fotos angezeigt (anklickbar)
+- [x] Wiederverwendbare `PhotoPicker`-Komponente für alle drei Flows
 

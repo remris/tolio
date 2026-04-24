@@ -17,9 +17,14 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json().catch(() => ({}))
-  const mileage: number | undefined = typeof body?.mileage === 'number' ? body.mileage : undefined
-  const fuel_status: string | undefined = body?.fuel_status
-  const note: string | undefined = body?.note
+  const rawMileage = body?.mileage
+  const mileage: number | undefined = typeof rawMileage === 'number' && !isNaN(rawMileage)
+    ? rawMileage
+    : typeof rawMileage === 'string' && rawMileage !== ''
+      ? (isNaN(parseInt(rawMileage, 10)) ? undefined : parseInt(rawMileage, 10))
+      : undefined
+  const fuel_status: string | undefined = body?.fuel_status || undefined
+  const note: string | undefined = body?.note || undefined
 
   const supabase = await createServiceClient()
 
@@ -35,7 +40,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Asset ist nicht ausgecheckt.' }, { status: 409 })
   }
 
-  // Ownership check: only the user who checked out can check in
+  // Ownership check
   const { data: lastCheckout } = await supabase
     .from('asset_logs')
     .select('user_id')
@@ -45,7 +50,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     .limit(1)
     .single()
 
-  if (lastCheckout && lastCheckout.user_id && lastCheckout.user_id !== session.id) {
+  if (lastCheckout?.user_id && lastCheckout.user_id !== session.id) {
     return NextResponse.json({ error: 'Nur die Person, die ausgecheckt hat, kann zurückgeben.' }, { status: 403 })
   }
 
@@ -54,15 +59,15 @@ export async function POST(req: NextRequest, { params }: Params) {
     .update({ status: 'available', updated_at: new Date().toISOString() })
     .eq('id', id)
 
-  await supabase.from('asset_logs').insert({
+  const { data: logEntry } = await supabase.from('asset_logs').insert({
     asset_id: id,
     user_id: session.id,
     action: 'check_in',
     mileage: mileage ?? null,
+    fuel_status: fuel_status ?? null,
     note: note ?? null,
-  })
+  }).select('id').single()
 
-  // Update vehicle mileage, fuel_status and clear driver
   if (asset.type === 'vehicle') {
     const vehicleUpdate: Record<string, unknown> = { assigned_user_id: null }
     if (mileage !== undefined) vehicleUpdate.mileage = mileage
@@ -70,5 +75,6 @@ export async function POST(req: NextRequest, { params }: Params) {
     await supabase.from('vehicles').update(vehicleUpdate).eq('asset_id', id)
   }
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, log_id: logEntry?.id ?? null })
 }
+

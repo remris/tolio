@@ -20,6 +20,7 @@ export default function PwaDashboardPage() {
   const [username, setUsername] = useState('')
   const [loading, setLoading] = useState(true)
   const [returning, setReturning] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [returnNote, setReturnNote] = useState('')
   const [returnMileage, setReturnMileage] = useState('')
   const [returnError, setReturnError] = useState('')
@@ -46,14 +47,19 @@ export default function PwaDashboardPage() {
   }, [])
 
   async function handleReturn(assetId: string, assetType: string) {
+    if (submitting) return
     if (assetType === 'vehicle' && !returnMileage) {
       setReturnError('Kilometerstand ist beim Fahrzeug Pflicht.')
       return
     }
+    setSubmitting(true)
     setReturnError('')
     const body: Record<string, unknown> = {}
     if (returnNote) body.note = returnNote
-    if (assetType === 'vehicle' && returnMileage) body.mileage = parseInt(returnMileage, 10)
+    if (assetType === 'vehicle' && returnMileage) {
+      const km = parseInt(returnMileage, 10)
+      if (!isNaN(km)) body.mileage = km
+    }
 
     const res = await fetch(`/api/assets/${assetId}/checkin`, {
       method: 'POST',
@@ -61,13 +67,14 @@ export default function PwaDashboardPage() {
       body: JSON.stringify(body),
     })
     const data = await res.json()
+    setSubmitting(false)
     if (!res.ok) { setReturnError(data.error ?? 'Fehler.'); return }
     setReturnDone(assetId)
     setReturning(null)
     setReturnNote('')
     setReturnMileage('')
     setMyAssets(prev => prev.filter(a => a.id !== assetId))
-    setStats(prev => prev ? { ...prev, in_use: prev.in_use - 1, available: prev.available + 1 } : prev)
+    setStats(prev => prev ? { ...prev, in_use: Math.max(0, prev.in_use - 1), available: prev.available + 1 } : prev)
     setTimeout(() => setReturnDone(null), 3000)
   }
 
@@ -148,9 +155,10 @@ export default function PwaDashboardPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleReturn(asset.id, asset.type)}
-                        className="flex-1 bg-green-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors"
+                        disabled={submitting}
+                        className="flex-1 bg-green-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-green-700 disabled:opacity-50 transition-colors"
                       >
-                        Zurückgeben
+                        {submitting ? 'Bitte warten…' : 'Zurückgeben'}
                       </button>
                       <button
                         onClick={() => { setReturning(null); setReturnError(''); setReturnNote(''); setReturnMileage('') }}

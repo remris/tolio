@@ -53,14 +53,14 @@ export async function POST(req: NextRequest, { params }: Params) {
     .update({ status: 'broken', updated_at: new Date().toISOString() })
     .eq('id', id)
 
-  await supabase.from('asset_logs').insert({
+  const { data: logEntry } = await supabase.from('asset_logs').insert({
     asset_id: id,
     user_id: session.id,
     action: 'check_in',
     note: `[DEFEKT] ${note}`,
     mileage: null,
-  })
+  }).select('id').single()
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, log_id: logEntry?.id ?? null })
 }
 
