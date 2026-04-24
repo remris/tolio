@@ -1,11 +1,12 @@
 import { createServiceClient } from '@/lib/supabase/server'
-import { getSessionUser } from '@/lib/auth/permissions'
+import { getAnySession } from '@/lib/auth/permissions'
 import { redirect } from 'next/navigation'
 import SettingsForm from '@/components/admin/SettingsForm'
 
 export default async function SettingsPage() {
-  const session = await getSessionUser()
+  const session = await getAnySession()
   if (!session) redirect('/login')
+  if (!session.is_admin) redirect('/admin/dashboard')
 
   const supabase = await createServiceClient()
   const { data: company } = await supabase

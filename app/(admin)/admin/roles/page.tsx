@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
-import { getSessionUser } from '@/lib/auth/permissions'
+import { getAnySession } from '@/lib/auth/permissions'
 import RolesManager from '@/components/admin/RolesManager'
 import { redirect } from 'next/navigation'
 
 export default async function RolesPage() {
-  const session = await getSessionUser()
+  const session = await getAnySession()
   if (!session) redirect('/login')
+  if (!session.is_admin) redirect('/admin/dashboard')
   const supabase = await createClient()
 
   const [{ data: roles }, { data: permissions }] = await Promise.all([

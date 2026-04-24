@@ -11,6 +11,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const { success, canceled } = await searchParams
   const session = await getSessionUser()
   if (!session) redirect('/login')
+  if (!session.is_admin) redirect('/admin/dashboard')
 
   const supabase = await createServiceClient()
 

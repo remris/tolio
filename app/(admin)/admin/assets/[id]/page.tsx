@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { createClient } from '@/lib/supabase/server'
-import { getSessionUser } from '@/lib/auth/permissions'
+import { getAnySession } from '@/lib/auth/permissions'
 import { notFound } from 'next/navigation'
 import AssetQrCode from '@/components/admin/AssetQrCode'
 import DeleteAssetButton from '@/components/admin/DeleteAssetButton'
@@ -42,7 +42,7 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default async function AssetDetailPage({ params }: Params) {
   const { id } = await params
-  const session = await getSessionUser()
+  const session = await getAnySession()
   if (!session) notFound()
 
   const supabase = await createClient()

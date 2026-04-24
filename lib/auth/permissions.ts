@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getEmployeeSession } from '@/lib/auth/employee-session'
 import type { PermissionKey, SessionUser } from '@/lib/types'
 
 export async function getSessionUser(): Promise<SessionUser | null> {
@@ -22,7 +23,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     .eq('role_id', user.role_id ?? '')
 
   const permissions: PermissionKey[] =
-    rolePerms?.flatMap((rp: any) =>
+    rolePerms?.flatMap((rp: { permissions: { key: string } | null }) =>
       rp.permissions ? [rp.permissions.key as PermissionKey] : [],
     ) ?? []
 
@@ -34,7 +35,13 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     email: user.email,
     role_id: user.role_id,
     permissions,
+    is_admin: true,
   }
+}
+
+/** Returns admin session first, falls back to employee session */
+export async function getAnySession(): Promise<SessionUser | null> {
+  return (await getSessionUser()) ?? (await getEmployeeSession())
 }
 
 export function hasPermission(user: SessionUser, permission: PermissionKey): boolean {

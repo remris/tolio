@@ -148,5 +148,6 @@ export interface SessionUser {
   email: string | null
   role_id: string | null
   permissions: PermissionKey[]
+  is_admin?: boolean
 }
 

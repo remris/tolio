@@ -15,28 +15,33 @@ import {
 } from 'lucide-react'
 
 const nav = [
-  { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-  { label: 'Assets', href: '/admin/assets', icon: Wrench },
-  { label: 'Mitarbeiter', href: '/admin/users', icon: Users },
-  { label: 'Rollen & Rechte', href: '/admin/roles', icon: ShieldCheck },
-  { label: 'Abonnement', href: '/admin/billing', icon: CreditCard },
-  { label: 'Einstellungen', href: '/admin/settings', icon: Settings },
+  { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, adminOnly: false },
+  { label: 'Assets', href: '/admin/assets', icon: Wrench, adminOnly: false },
+  { label: 'Mitarbeiter', href: '/admin/users', icon: Users, adminOnly: true },
+  { label: 'Rollen & Rechte', href: '/admin/roles', icon: ShieldCheck, adminOnly: true },
+  { label: 'Abonnement', href: '/admin/billing', icon: CreditCard, adminOnly: true },
+  { label: 'Einstellungen', href: '/admin/settings', icon: Settings, adminOnly: true },
 ]
 
 interface Props {
   username: string
   companyName: string
+  isAdmin?: boolean
 }
 
-export default function AdminSidebar({ username, companyName }: Props) {
+export default function AdminSidebar({ username, companyName, isAdmin = true }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 
   async function handleLogout() {
     const supabase = createClient()
     await supabase.auth.signOut()
+    // also clear employee session cookie
+    await fetch('/api/auth/employee-logout', { method: 'POST' })
     router.replace('/login')
   }
+
+  const visibleNav = nav.filter(item => !item.adminOnly || isAdmin)
 
   return (
     <aside className="w-56 bg-white border-r border-gray-100 flex flex-col shrink-0 shadow-sm">
@@ -50,7 +55,7 @@ export default function AdminSidebar({ username, companyName }: Props) {
 
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-0.5">
-        {nav.map(({ label, href, icon: Icon }) => {
+        {visibleNav.map(({ label, href, icon: Icon }) => {
           const active = pathname.startsWith(href)
           return (
             <Link

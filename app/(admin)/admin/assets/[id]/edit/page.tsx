@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { createClient } from '@/lib/supabase/server'
-import { getSessionUser } from '@/lib/auth/permissions'
+import { getAnySession } from '@/lib/auth/permissions'
 import { notFound } from 'next/navigation'
 import AssetForm from '@/components/admin/AssetForm'
 import Link from 'next/link'
@@ -12,7 +12,7 @@ type Params = { params: Promise<{ id: string }> }
 
 export default async function AssetEditPage({ params }: Params) {
   const { id } = await params
-  const session = await getSessionUser()
+  const session = await getAnySession()
   if (!session) notFound()
 
   const supabase = await createClient()

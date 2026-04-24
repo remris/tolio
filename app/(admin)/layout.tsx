@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getSessionUser } from '@/lib/auth/permissions'
+import { getAnySession } from '@/lib/auth/permissions'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = { title: 'tolio – Admin' }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSessionUser()
+  const session = await getAnySession()
   if (!session) redirect('/login')
 
   const supabase = await createClient()
@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <AdminSidebar username={session.username} companyName={company?.name ?? ''} />
+      <AdminSidebar username={session.username} companyName={company?.name ?? ''} isAdmin={session.is_admin === true} />
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-7xl mx-auto w-full">
           {isBlocked ? (

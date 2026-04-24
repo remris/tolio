@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getSessionUser } from '@/lib/auth/permissions'
+import { getAnySession } from '@/lib/auth/permissions'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Package, ArrowRight, Wrench, AlertTriangle, Activity } from 'lucide-react'
@@ -8,7 +8,7 @@ import DueDateBadge from '@/components/shared/DueDateBadge'
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
-  const session = await getSessionUser()
+  const session = await getAnySession()
   if (!session) redirect('/login')
 
   const supabase = await createClient()
