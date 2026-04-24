@@ -11,11 +11,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session) redirect('/login')
 
   const supabase = await createClient()
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('status, current_period_end')
-    .eq('company_id', session.company_id)
-    .single()
+
+  const [{ data: sub }, { data: company }] = await Promise.all([
+    supabase
+      .from('subscriptions')
+      .select('status, current_period_end')
+      .eq('company_id', session.company_id)
+      .single(),
+    supabase
+      .from('companies')
+      .select('name')
+      .eq('id', session.company_id)
+      .single(),
+  ])
 
   const isBlocked =
     sub &&
@@ -25,13 +33,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <AdminSidebar />
+      <AdminSidebar username={session.username} companyName={company?.name ?? ''} />
       <main className="flex-1 overflow-y-auto p-6">
         {isBlocked ? (
           <div className="flex flex-col items-center justify-center h-full text-center gap-4">
-            <p className="text-2xl font-bold">Subscription abgelaufen</p>
+            <p className="text-2xl font-bold text-gray-900">Subscription abgelaufen</p>
             <p className="text-gray-500 text-sm">Dein Zugang wurde gesperrt. Bitte erneuere deine Subscription.</p>
-            <a href="mailto:support@tolio.app" className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800">
+            <a href="mailto:support@tolio.app" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">
               Support kontaktieren
             </a>
           </div>

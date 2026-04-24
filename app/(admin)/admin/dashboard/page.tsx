@@ -1,9 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/permissions'
-import { assetTypeLabel } from '@/lib/utils'
-import DueDateBadge from '@/components/shared/DueDateBadge'
-import ExportButtons from '@/components/admin/ExportButtons'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { Package, ArrowRight, Wrench, AlertTriangle, Activity } from 'lucide-react'
 
 export default async function DashboardPage() {
   const session = await getSessionUser()
@@ -12,144 +11,117 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const companyId = session.company_id
 
-  const warningDate = new Date()
-  warningDate.setDate(warningDate.getDate() + 30)
-  const warningIso = warningDate.toISOString().slice(0, 10)
-
   const [
     { count: totalAssets },
     { count: inUse },
-    { count: broken },
     { count: maintenance },
-    { data: recentLogs },
+    { count: broken },
     { data: company },
-    { data: currentCheckouts },
-    { data: dueSoon },
+    { data: recentAssets },
+    { data: recentLogs },
   ] = await Promise.all([
     supabase.from('assets').select('*', { count: 'exact', head: true }).eq('company_id', companyId),
     supabase.from('assets').select('*', { count: 'exact', head: true }).eq('company_id', companyId).eq('status', 'in_use'),
-    supabase.from('assets').select('*', { count: 'exact', head: true }).eq('company_id', companyId).eq('status', 'broken'),
     supabase.from('assets').select('*', { count: 'exact', head: true }).eq('company_id', companyId).eq('status', 'maintenance'),
-    supabase
-      .from('asset_logs')
-      .select('id, action, created_at, assets(name, type), users(username)')
-      .order('created_at', { ascending: false })
-      .limit(8),
-    supabase.from('companies').select('name, code').eq('id', companyId).single(),
-    // Assets currently checked out (in_use) with who has them
-    supabase
-      .from('assets')
-      .select('id, name, type, updated_at, vehicles(assigned_user_id, users(username))')
-      .eq('company_id', companyId)
-      .eq('status', 'in_use')
-      .order('updated_at', { ascending: false })
-      .limit(10),
-    // Assets with maintenance/TÜV due within 30 days
-    supabase
-      .from('assets')
-      .select('id, name, type, vehicles(tuv_date, next_maintenance_at), machines(next_maintenance)')
-      .eq('company_id', companyId)
-      .or(`vehicles.tuv_date.lte.${warningIso},vehicles.next_maintenance_at.lte.${warningIso},machines.next_maintenance.lte.${warningIso}`)
-      .limit(10),
+    supabase.from('assets').select('*', { count: 'exact', head: true }).eq('company_id', companyId).eq('status', 'broken'),
+    supabase.from('companies').select('name').eq('id', companyId).single(),
+    supabase.from('assets').select('id, name, status').eq('company_id', companyId).order('created_at', { ascending: false }).limit(5),
+    supabase.from('asset_logs').select('id, action, created_at, assets(name), users(username)').order('created_at', { ascending: false }).limit(6),
   ])
 
+  type LogRow = { id: string; action: string; created_at: string; assets: { name: string } | null; users: { username: string } | null }
+
+  const statusLabel: Record<string, { label: string; class: string }> = {
+    available:   { label: 'Verfügbar',  class: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    in_use:      { label: 'In Nutzung', class: 'bg-blue-50 text-blue-700 border-blue-200' },
+    maintenance: { label: 'Wartung',    class: 'bg-amber-50 text-amber-700 border-amber-200' },
+    broken:      { label: 'Defekt',     class: 'bg-red-50 text-red-700 border-red-200' },
+  }
+
   const stats = [
-    { label: 'Gesamt Assets', value: totalAssets ?? 0, color: 'text-black' },
-    { label: 'In Verwendung', value: inUse ?? 0, color: 'text-yellow-600' },
-    { label: 'Defekt', value: broken ?? 0, color: 'text-red-600' },
-    { label: 'In Wartung', value: maintenance ?? 0, color: 'text-blue-600' },
+    { label: 'Assets gesamt', value: totalAssets ?? 0, icon: Package,       iconClass: 'text-gray-400' },
+    { label: 'Aktuell ausgegeben', value: inUse ?? 0,       icon: Wrench,        iconClass: 'text-blue-400' },
+    { label: 'Wartung fällig',     value: maintenance ?? 0, icon: AlertTriangle, iconClass: 'text-amber-400' },
+    { label: 'Defekt',             value: broken ?? 0,      icon: Activity,      iconClass: 'text-red-400' },
   ]
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <ExportButtons />
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-400 mt-0.5">{company?.name} · Übersicht Ihres Bestands.</p>
+        </div>
+        <Link
+          href="/admin/assets"
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          Assets verwalten
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
-      {company && (
-        <div className="bg-black text-white rounded-xl p-4 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Firmencode für Mitarbeiter</p>
-            <p className="text-3xl font-bold tracking-widest mt-1">{company.code}</p>
-          </div>
-          <p className="text-sm text-gray-400">{company.name}</p>
-        </div>
-      )}
-
+      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-white rounded-xl p-5 shadow-sm border">
-            <p className="text-sm text-gray-500">{s.label}</p>
-            <p className={`text-3xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+        {stats.map(({ label, value, icon: Icon, iconClass }) => (
+          <div key={label} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-gray-500">{label}</p>
+              <Icon className={`w-4 h-4 ${iconClass}`} />
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{value}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Current checkouts */}
-        <div className="bg-white rounded-xl border shadow-sm">
-          <div className="p-4 border-b font-semibold">📤 Aktuelle Ausleihen</div>
-          <ul className="divide-y">
-            {currentCheckouts?.map((a: any) => (
-              <li key={a.id} className="px-4 py-3 flex justify-between text-sm">
-                <span>
-                  <a href={`/admin/assets/${a.id}`} className="font-medium underline">{a.name}</a>
-                  <span className="text-gray-400 ml-1">({assetTypeLabel(a.type)})</span>
-                </span>
-                <span className="text-gray-500">
-                  {a.vehicles?.users?.username ?? '–'}
-                </span>
-              </li>
-            ))}
-            {!currentCheckouts?.length && (
-              <li className="px-4 py-6 text-center text-gray-400 text-sm">Keine aktiven Ausleihen.</li>
+      {/* Bottom grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Zuletzt hinzugefügt */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-50">
+            <p className="text-sm font-semibold text-gray-900">Zuletzt hinzugefügt</p>
+            <Link href="/admin/assets" className="text-xs text-indigo-600 hover:underline">Alle anzeigen</Link>
+          </div>
+          <ul className="divide-y divide-gray-50">
+            {recentAssets?.map((a) => {
+              const s = statusLabel[a.status] ?? statusLabel.available
+              return (
+                <li key={a.id} className="px-5 py-3 flex items-center justify-between">
+                  <Link href={`/admin/assets/${a.id}`} className="text-sm font-medium text-gray-800 hover:text-indigo-600 transition-colors">
+                    {a.name}
+                  </Link>
+                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${s.class}`}>
+                    • {s.label}
+                  </span>
+                </li>
+              )
+            })}
+            {!recentAssets?.length && (
+              <li className="px-5 py-8 text-center text-sm text-gray-400">Noch keine Assets.</li>
             )}
           </ul>
         </div>
 
-        {/* Due soon */}
-        <div className="bg-white rounded-xl border shadow-sm">
-          <div className="p-4 border-b font-semibold">⚠️ Bald fällig (30 Tage)</div>
-          <ul className="divide-y">
-            {dueSoon?.map((a: any) => (
-              <li key={a.id} className="px-4 py-3 text-sm space-y-1">
-                <a href={`/admin/assets/${a.id}`} className="font-medium underline">{a.name}</a>
-                <div className="flex flex-wrap gap-1.5">
-                  {a.vehicles?.tuv_date && <DueDateBadge date={a.vehicles.tuv_date} label="TÜV" />}
-                  {a.vehicles?.next_maintenance_at && <DueDateBadge date={a.vehicles.next_maintenance_at} label="Wartung" />}
-                  {a.machines?.next_maintenance && <DueDateBadge date={a.machines.next_maintenance} label="Wartung" />}
-                </div>
-              </li>
-            ))}
-            {!dueSoon?.length && (
-              <li className="px-4 py-6 text-center text-gray-400 text-sm">Keine fälligen Termine.</li>
-            )}
-          </ul>
-        </div>
-      </div>
-
-      {/* Recent activity */}
-      <div className="bg-white rounded-xl border shadow-sm">
-        <div className="p-4 border-b font-semibold">Letzte Aktivitäten</div>
-        <ul className="divide-y">
-          {recentLogs?.map((log: any) => (
-            <li key={log.id} className="px-4 py-3 flex justify-between text-sm">
-              <span>
-                <span className="font-medium">{log.users?.[0]?.username ?? '–'}</span>
+        {/* Letzte Aktivität */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-50">
+            <p className="text-sm font-semibold text-gray-900">Letzte Aktivität</p>
+            <span className="text-xs text-gray-400">Alle anzeigen</span>
+          </div>
+          <ul className="divide-y divide-gray-50">
+            {(recentLogs as LogRow[] | null)?.map((log) => (
+              <li key={log.id} className="px-5 py-3 text-sm text-gray-600">
+                <span className="font-medium text-gray-800">{log.users?.username ?? '–'}</span>
                 {' '}{log.action === 'check_out' ? 'hat ausgecheckt' : 'hat eingecheckt'}:{' '}
-                <span className="font-medium">{log.assets?.name ?? '–'}</span>
-                {' '}({assetTypeLabel(log.assets?.type ?? '')})
-              </span>
-              <span className="text-gray-400">
-                {new Date(log.created_at).toLocaleString('de-DE')}
-              </span>
-            </li>
-          ))}
-          {!recentLogs?.length && (
-            <li className="px-4 py-6 text-center text-gray-400 text-sm">Keine Aktivitäten vorhanden.</li>
-          )}
-        </ul>
+                <span className="font-medium text-gray-800">{log.assets?.name ?? '–'}</span>
+              </li>
+            ))}
+            {!recentLogs?.length && (
+              <li className="px-5 py-8 text-center text-sm text-gray-400">Noch keine Aktivität.</li>
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   )

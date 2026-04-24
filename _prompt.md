@@ -1,7 +1,7 @@
 You are a senior software engineer
 
 #Task
-check feature_request.md and implement the requested feature in the codebase. Make sure to follow the architecture and coding standards of the project.
+rredesing wie es im screenshot ist von lovable ich möchte das du den style so triffst aktuell ist das alles zu schwarz und die nav items haben keine icons und unten in der navbar wird der user nicht angzeigt passe es an wie beim screenshots von lovable inhalt des dashbaords machen wir später wenn wir wissewn was wir alles darstellen können.
 
 #OUTPUT REQUIREMENTS
 -Write production-ready code

@@ -1,19 +1,32 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import {
+  LayoutDashboard,
+  Wrench,
+  Users,
+  ShieldCheck,
+  CreditCard,
+  LogOut,
+  Package2,
+} from 'lucide-react'
 
 const nav = [
-  { label: 'Dashboard', href: '/admin/dashboard' },
-  { label: 'Assets', href: '/admin/assets' },
-  { label: 'Mitarbeiter', href: '/admin/users' },
-  { label: 'Rollen & Rechte', href: '/admin/roles' },
-  { label: 'Abonnement', href: '/admin/billing' },
+  { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+  { label: 'Assets', href: '/admin/assets', icon: Wrench },
+  { label: 'Mitarbeiter', href: '/admin/users', icon: Users },
+  { label: 'Rollen & Rechte', href: '/admin/roles', icon: ShieldCheck },
+  { label: 'Abonnement', href: '/admin/billing', icon: CreditCard },
 ]
 
-export default function AdminSidebar() {
+interface Props {
+  username: string
+  companyName: string
+}
+
+export default function AdminSidebar({ username, companyName }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -24,34 +37,50 @@ export default function AdminSidebar() {
   }
 
   return (
-    <aside className="w-56 bg-white border-r flex flex-col shrink-0">
-      <div className="p-5 border-b">
-        <span className="text-xl font-bold">tolio</span>
+    <aside className="w-56 bg-white border-r border-gray-100 flex flex-col shrink-0 shadow-sm">
+      {/* Logo */}
+      <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+          <Package2 className="w-4 h-4 text-white" />
+        </div>
+        <span className="text-base font-bold text-gray-900 tracking-tight">tolio</span>
       </div>
-      <nav className="flex-1 p-3 space-y-1">
-        {nav.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              pathname.startsWith(item.href)
-                ? 'bg-black text-white'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            {item.label}
-          </Link>
-        ))}
+
+      {/* Nav */}
+      <nav className="flex-1 p-3 space-y-0.5">
+        {nav.map(({ label, href, icon: Icon }) => {
+          const active = pathname.startsWith(href)
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                active
+                  ? 'bg-indigo-50 text-indigo-700'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-indigo-600' : 'text-gray-400'}`} />
+              {label}
+            </Link>
+          )
+        })}
       </nav>
-      <div className="p-3 border-t">
+
+      {/* User info + logout */}
+      <div className="p-3 border-t border-gray-100 space-y-1">
+        <div className="px-3 py-2">
+          <p className="text-sm font-semibold text-gray-900 truncate">{username}</p>
+          <p className="text-xs text-gray-400 truncate">{companyName}</p>
+        </div>
         <button
           onClick={handleLogout}
-          className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-100"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
         >
+          <LogOut className="w-4 h-4 text-gray-400" />
           Abmelden
         </button>
       </div>
     </aside>
   )
 }
-
