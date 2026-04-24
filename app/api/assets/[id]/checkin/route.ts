@@ -35,6 +35,20 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Asset ist nicht ausgecheckt.' }, { status: 409 })
   }
 
+  // Ownership check: only the user who checked out can check in
+  const { data: lastCheckout } = await supabase
+    .from('asset_logs')
+    .select('user_id')
+    .eq('asset_id', id)
+    .eq('action', 'check_out')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (lastCheckout && lastCheckout.user_id && lastCheckout.user_id !== session.id) {
+    return NextResponse.json({ error: 'Nur die Person, die ausgecheckt hat, kann zurückgeben.' }, { status: 403 })
+  }
+
   await supabase
     .from('assets')
     .update({ status: 'available', updated_at: new Date().toISOString() })

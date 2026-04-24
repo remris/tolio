@@ -10,9 +10,11 @@ interface Props {
   status: AssetStatus
   assetType: AssetType
   currentMileage?: number | null
+  currentUserId?: string | null
+  heldByUserId?: string | null
 }
 
-export default function CheckActions({ assetId, status, assetType, currentMileage }: Props) {
+export default function CheckActions({ assetId, status, assetType, currentMileage, currentUserId, heldByUserId }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,6 +25,11 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
 
   const isVehicle = assetType === 'vehicle'
 
+  // If in_use and heldByUserId is set and doesn't match currentUserId, don't show return
+  const canReturn = status === 'in_use' && (
+    !heldByUserId || !currentUserId || heldByUserId === currentUserId
+  )
+
   async function handle(action: 'checkin' | 'checkout') {
     setLoading(true)
     setError(null)
@@ -32,7 +39,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
     if (isVehicle && mileage) body.mileage = parseInt(mileage, 10)
     if (isVehicle && action === 'checkin' && fuelStatus) body.fuel_status = fuelStatus
 
-    const res = await fetch(`/api/assets/${assetId}/${action}`, {
+    const res = await fetch(`/api/assets/${assetId}/${action === 'checkout' ? 'checkout' : 'checkin'}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -45,7 +52,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
     }
     setDone(action)
     setLoading(false)
-    setTimeout(() => router.push('/pwa/dashboard'), 1500)
+    setTimeout(() => router.push('/pwa/assets'), 1500)
   }
 
   if (done) {
@@ -55,7 +62,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
         <p className="font-semibold text-gray-900">
           {done === 'checkout' ? 'Erfolgreich ausgecheckt!' : 'Erfolgreich eingecheckt!'}
         </p>
-        <p className="text-sm text-gray-500">Weiterleitung zur Übersicht…</p>
+        <p className="text-sm text-gray-500">Weiterleitung…</p>
       </div>
     )
   }
@@ -65,6 +72,15 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
       <div className="flex items-center gap-3 text-sm text-gray-500 bg-gray-50 rounded-xl p-4">
         <XCircle className="w-5 h-5 text-gray-400 shrink-0" />
         <span>Dieses Asset ist derzeit nicht verfügbar ({status}).</span>
+      </div>
+    )
+  }
+
+  if (status === 'in_use' && !canReturn) {
+    return (
+      <div className="flex items-center gap-3 text-sm text-gray-500 bg-gray-50 rounded-xl p-4">
+        <XCircle className="w-5 h-5 text-gray-400 shrink-0" />
+        <span>Nur die Person, die ausgecheckt hat, kann zurückgeben.</span>
       </div>
     )
   }
@@ -135,7 +151,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
           {loading ? 'Bitte warten…' : '📤 Auschecken'}
         </button>
       )}
-      {status === 'in_use' && (
+      {status === 'in_use' && canReturn && (
         <button
           onClick={() => handle('checkin')}
           disabled={loading}
@@ -147,4 +163,3 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
     </div>
   )
 }
-

@@ -21,7 +21,7 @@ export default function PwaLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <SwRegister />
       <PwaTopBar />
-      <main className="flex-1 pb-20">
+      <main className="flex-1 pb-24">
         {children}
       </main>
       <PwaBottomNav />

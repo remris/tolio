@@ -46,7 +46,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getSessionUser()
+  const adminSession = await getSessionUser()
+  const session = adminSession ?? (await getEmployeeSession())
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
   const { name, type, status, notes, license_plate, mileage, tuv_date,
     last_maintenance_at, next_maintenance_at, serial_no, manufacturer } = parsed.data
 
-  const supabase = await createClient()
+  const supabase = adminSession ? await createClient() : await createServiceClient()
 
   // Generate unique QR token
   const qr_code = crypto.randomUUID()

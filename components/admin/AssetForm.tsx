@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Asset } from '@/lib/types'
+import { ImagePlus, X } from 'lucide-react'
 
 interface Props {
   asset?: Asset
@@ -11,25 +12,55 @@ interface Props {
 export default function AssetForm({ asset }: Props) {
   const router = useRouter()
   const isEdit = !!asset
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const a = asset as any
 
   const [form, setForm] = useState({
     name: asset?.name ?? '',
     type: asset?.type ?? 'tool',
     status: asset?.status ?? 'available',
     notes: asset?.notes ?? '',
-    license_plate: (asset as any)?.vehicles?.license_plate ?? '',
-    mileage: (asset as any)?.vehicles?.mileage ?? 0,
-    tuv_date: (asset as any)?.vehicles?.tuv_date ?? '',
-    last_maintenance_at: (asset as any)?.vehicles?.last_maintenance_at ?? '',
-    next_maintenance_at: (asset as any)?.vehicles?.next_maintenance_at ?? '',
-    serial_no: (asset as any)?.machines?.serial_no ?? '',
-    manufacturer: (asset as any)?.machines?.manufacturer ?? '',
+    license_plate: a?.vehicles?.license_plate ?? '',
+    mileage: a?.vehicles?.mileage ?? 0,
+    tuv_date: a?.vehicles?.tuv_date ?? '',
+    last_maintenance_at: a?.vehicles?.last_maintenance_at ?? '',
+    next_maintenance_at: a?.vehicles?.next_maintenance_at ?? '',
+    serial_no: a?.machines?.serial_no ?? '',
+    manufacturer: a?.machines?.manufacturer ?? '',
   })
+  const [photos, setPhotos] = useState<File[]>([])
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
+  const [existingPhotos, setExistingPhotos] = useState<string[]>(a?.photo_urls ?? [])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   function update(field: string, value: string | number) {
     setForm((f) => ({ ...f, [field]: value }))
+  }
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    const remaining = 3 - existingPhotos.length - photos.length
+    const newFiles = files.slice(0, remaining)
+    setPhotos(prev => [...prev, ...newFiles])
+    setPhotoPreviews(prev => [...prev, ...newFiles.map(f => URL.createObjectURL(f))])
+    e.target.value = ''
+  }
+
+  function removeNewPhoto(i: number) {
+    setPhotos(prev => prev.filter((_, idx) => idx !== i))
+    setPhotoPreviews(prev => prev.filter((_, idx) => idx !== i))
+  }
+
+  async function removeExistingPhoto(url: string) {
+    if (!asset) return
+    await fetch(`/api/assets/${asset.id}/photos`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
+    setExistingPhotos(prev => prev.filter(u => u !== url))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -50,9 +81,21 @@ export default function AssetForm({ asset }: Props) {
       return
     }
 
+    const saved = await res.json()
+    const assetId = isEdit ? asset!.id : saved.id
+
+    // Upload new photos
+    if (photos.length > 0 && assetId) {
+      const fd = new FormData()
+      photos.forEach(f => fd.append('photos', f))
+      await fetch(`/api/assets/${assetId}/photos`, { method: 'POST', body: fd })
+    }
+
     router.push('/admin/assets')
     router.refresh()
   }
+
+  const totalPhotos = existingPhotos.length + photos.length
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,6 +124,41 @@ export default function AssetForm({ asset }: Props) {
 
       <Field label="Notizen">
         <textarea value={form.notes} onChange={(e) => update('notes', e.target.value)} rows={3} className={inputCls} />
+      </Field>
+
+      {/* Photo upload */}
+      <Field label="Fotos (max. 3)">
+        <div className="flex gap-2 flex-wrap">
+          {existingPhotos.map((url, i) => (
+            <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt="" className="w-full h-full object-cover" />
+              <button type="button" onClick={() => removeExistingPhoto(url)} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
+                <X className="w-3 h-3 text-white" />
+              </button>
+            </div>
+          ))}
+          {photoPreviews.map((url, i) => (
+            <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt="" className="w-full h-full object-cover" />
+              <button type="button" onClick={() => removeNewPhoto(i)} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
+                <X className="w-3 h-3 text-white" />
+              </button>
+            </div>
+          ))}
+          {totalPhotos < 3 && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-indigo-400 hover:text-indigo-500 transition-colors"
+            >
+              <ImagePlus className="w-5 h-5" />
+              <span className="text-xs mt-0.5">Foto</span>
+            </button>
+          )}
+        </div>
+        <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoChange} />
       </Field>
 
       {(form.type === 'vehicle' || asset?.type === 'vehicle') && (
