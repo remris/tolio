@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { ChevronDown, ChevronRight, Wrench, Cpu, Car } from 'lucide-react'
 import type { Asset } from '@/lib/types'
 import { assetStatusLabel, formatMileage } from '@/lib/utils'
@@ -18,7 +18,7 @@ const conditionLabels: Record<string, string> = {
 }
 
 // ── Tool table ────────────────────────────────────────────────
-function ToolTable({ assets, onNavigate }: { assets: Asset[]; onNavigate: (id: string) => void }) {
+function ToolTable({ assets }: { assets: Asset[] }) {
   return (
     <table className="w-full text-sm">
       <thead>
@@ -34,8 +34,12 @@ function ToolTable({ assets, onNavigate }: { assets: Asset[]; onNavigate: (id: s
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const t = (a as any).tools
           return (
-            <tr key={a.id} onClick={() => onNavigate(a.id)} className="hover:bg-gray-50 cursor-pointer transition-colors">
-              <td className="px-4 py-2.5 pl-10 font-medium text-gray-900">{a.name}</td>
+            <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+              <td className="px-4 py-2.5 pl-10">
+                <Link href={`/assets/${a.id}`} className="font-medium text-gray-900 hover:text-indigo-600 after:absolute after:inset-0">
+                  {a.name}
+                </Link>
+              </td>
               <td className="px-4 py-2.5">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[a.status]}`}>
                   {assetStatusLabel(a.status)}
@@ -52,7 +56,7 @@ function ToolTable({ assets, onNavigate }: { assets: Asset[]; onNavigate: (id: s
 }
 
 // ── Machine table ─────────────────────────────────────────────
-function MachineTable({ assets, onNavigate }: { assets: Asset[]; onNavigate: (id: string) => void }) {
+function MachineTable({ assets }: { assets: Asset[] }) {
   return (
     <table className="w-full text-sm">
       <thead>
@@ -72,8 +76,12 @@ function MachineTable({ assets, onNavigate }: { assets: Asset[]; onNavigate: (id
             ? new Date(m.next_maintenance).toLocaleDateString('de-DE')
             : '–'
           return (
-            <tr key={a.id} onClick={() => onNavigate(a.id)} className="hover:bg-gray-50 cursor-pointer transition-colors">
-              <td className="px-4 py-2.5 pl-10 font-medium text-gray-900">{a.name}</td>
+            <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+              <td className="px-4 py-2.5 pl-10">
+                <Link href={`/assets/${a.id}`} className="font-medium text-gray-900 hover:text-indigo-600">
+                  {a.name}
+                </Link>
+              </td>
               <td className="px-4 py-2.5">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[a.status]}`}>
                   {assetStatusLabel(a.status)}
@@ -91,7 +99,7 @@ function MachineTable({ assets, onNavigate }: { assets: Asset[]; onNavigate: (id
 }
 
 // ── Vehicle table ─────────────────────────────────────────────
-function VehicleTable({ assets, onNavigate }: { assets: Asset[]; onNavigate: (id: string) => void }) {
+function VehicleTable({ assets }: { assets: Asset[] }) {
   return (
     <table className="w-full text-sm">
       <thead>
@@ -109,8 +117,12 @@ function VehicleTable({ assets, onNavigate }: { assets: Asset[]; onNavigate: (id
           const v = (a as any).vehicles
           const tuv = v?.tuv_date ? new Date(v.tuv_date).toLocaleDateString('de-DE') : '–'
           return (
-            <tr key={a.id} onClick={() => onNavigate(a.id)} className="hover:bg-gray-50 cursor-pointer transition-colors">
-              <td className="px-4 py-2.5 pl-10 font-medium text-gray-900">{a.name}</td>
+            <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+              <td className="px-4 py-2.5 pl-10">
+                <Link href={`/assets/${a.id}`} className="font-medium text-gray-900 hover:text-indigo-600">
+                  {a.name}
+                </Link>
+              </td>
               <td className="px-4 py-2.5">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[a.status]}`}>
                   {assetStatusLabel(a.status)}
@@ -138,10 +150,8 @@ const categoryConfig: { key: CategoryKey; label: string; icon: React.ElementType
 
 // ── Main component ────────────────────────────────────────────
 export default function AssetCategoryTable({ assets }: { assets: Asset[] }) {
-  const router = useRouter()
   const [open, setOpen] = useState<Record<string, boolean>>({ tool: true, machine: true, vehicle: true })
 
-  function navigate(id: string) { router.push(`/assets/${id}`) }
   function toggle(key: string) { setOpen(prev => ({ ...prev, [key]: !prev[key] })) }
 
   if (!assets.length) {
@@ -177,9 +187,9 @@ export default function AssetCategoryTable({ assets }: { assets: Asset[] }) {
 
             {/* Per-category table */}
             {isOpen && catAssets.length > 0 && (
-              key === 'tool' ? <ToolTable assets={catAssets} onNavigate={navigate} /> :
-              key === 'machine' ? <MachineTable assets={catAssets} onNavigate={navigate} /> :
-              <VehicleTable assets={catAssets} onNavigate={navigate} />
+              key === 'tool' ? <ToolTable assets={catAssets} /> :
+              key === 'machine' ? <MachineTable assets={catAssets} /> :
+              <VehicleTable assets={catAssets} />
             )}
 
             {isOpen && catAssets.length === 0 && (
