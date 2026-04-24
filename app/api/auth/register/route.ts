@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+﻿﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
@@ -42,7 +42,9 @@ export async function POST(req: NextRequest) {
     await serviceClient.auth.admin.deleteUser(authData.user.id)
     return NextResponse.json({ error: 'Firma konnte nicht erstellt werden.' }, { status: 500 })
   }
-  const { data: permissions } = await serviceClient.from('permissions').select('id')
+  const { data: permissions } = await serviceClient.from('permissions').select('id, key')
+
+  // Admin role – all permissions
   const { data: adminRole, error: roleError } = await serviceClient
     .from('roles')
     .insert({ company_id: company.id, name: 'Admin' })
@@ -50,8 +52,36 @@ export async function POST(req: NextRequest) {
     .single()
   if (!roleError && adminRole && permissions) {
     await serviceClient.from('role_permissions').insert(
-      permissions.map((p: { id: string }) => ({ role_id: adminRole.id, permission_id: p.id })),
+      permissions.map((p: { id: string; key: string }) => ({ role_id: adminRole.id, permission_id: p.id })),
     )
+  }
+
+  // Mitarbeiter role – scan + view assets
+  const mitarbeiterPerms = ['scan.use', 'assets.update']
+  const { data: mitarbeiterRole } = await serviceClient
+    .from('roles')
+    .insert({ company_id: company.id, name: 'Mitarbeiter' })
+    .select('id')
+    .single()
+  if (mitarbeiterRole && permissions) {
+    const ids = permissions
+      .filter((p: { id: string; key: string }) => mitarbeiterPerms.includes(p.key))
+      .map((p: { id: string; key: string }) => ({ role_id: mitarbeiterRole.id, permission_id: p.id }))
+    if (ids.length) await serviceClient.from('role_permissions').insert(ids)
+  }
+
+  // Fahrer role – scan + vehicles
+  const fahrerPerms = ['scan.use', 'vehicles.manage']
+  const { data: fahrerRole } = await serviceClient
+    .from('roles')
+    .insert({ company_id: company.id, name: 'Fahrer' })
+    .select('id')
+    .single()
+  if (fahrerRole && permissions) {
+    const ids = permissions
+      .filter((p: { id: string; key: string }) => fahrerPerms.includes(p.key))
+      .map((p: { id: string; key: string }) => ({ role_id: fahrerRole.id, permission_id: p.id }))
+    if (ids.length) await serviceClient.from('role_permissions').insert(ids)
   }
   const { error: userError } = await serviceClient.from('users').insert({
     company_id: company.id,

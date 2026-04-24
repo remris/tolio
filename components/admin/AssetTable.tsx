@@ -46,7 +46,7 @@ export default function AssetTable({ assets }: { assets: Asset[] }) {
                 {asset.vehicle?.license_plate ?? '–'}
               </td>
               <td className="px-4 py-3 text-right">
-                <Link href={`/admin/assets/${asset.id}`} className="text-black underline">
+                <Link href={`/admin/assets/${asset.id}`} className="text-indigo-600 hover:text-indigo-800 font-medium">
                   Details
                 </Link>
               </td>
@@ -57,4 +57,3 @@ export default function AssetTable({ assets }: { assets: Asset[] }) {
     </div>
   )
 }
-

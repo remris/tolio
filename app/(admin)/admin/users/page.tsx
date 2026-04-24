@@ -18,10 +18,10 @@ export default async function UsersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Mitarbeiter</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Mitarbeiter</h1>
         <Link
           href="/admin/users/new"
-          className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
         >
           + Mitarbeiter anlegen
         </Link>

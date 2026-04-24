@@ -32,12 +32,12 @@ export default async function AssetsPage({
   ]
 
   return (
-    <div>
+    <div className="max-w-5xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Assets</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Assets</h1>
         <Link
           href="/admin/assets/new"
-          className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
         >
           + Asset anlegen
         </Link>
@@ -50,8 +50,8 @@ export default async function AssetsPage({
             href={tab.value ? `/admin/assets?type=${tab.value}` : '/admin/assets'}
             className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
               (type ?? '') === tab.value
-                ? 'bg-black text-white border-black'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                ? 'bg-indigo-600 text-white border-indigo-600'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
             }`}
           >
             {tab.label}

@@ -69,7 +69,7 @@ export default function RolesManager({ roles, permissions }: { roles: Role[]; pe
               type="text"
               value={newRoleName}
               onChange={(e) => setNewRoleName(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
           <div>
@@ -92,7 +92,7 @@ export default function RolesManager({ roles, permissions }: { roles: Role[]; pe
           <button
             type="submit"
             disabled={loading}
-            className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Speichern...' : 'Rolle erstellen'}
           </button>
@@ -101,4 +101,3 @@ export default function RolesManager({ roles, permissions }: { roles: Role[]; pe
     </div>
   )
 }
-

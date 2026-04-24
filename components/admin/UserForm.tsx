@@ -51,7 +51,7 @@ export default function UserForm({ roles, user }: { roles: Role[]; user?: Existi
     router.refresh()
   }
 
-  const inputCls = 'w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black'
+  const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -93,7 +93,7 @@ export default function UserForm({ roles, user }: { roles: Role[]; user?: Existi
         </label>
       )}
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <button type="submit" disabled={loading} className="w-full bg-black text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
+      <button type="submit" disabled={loading} className="w-full bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors">
         {loading ? 'Speichern...' : isEdit ? 'Speichern' : 'Mitarbeiter anlegen'}
       </button>
     </form>
