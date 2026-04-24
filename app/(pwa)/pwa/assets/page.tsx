@@ -36,10 +36,12 @@ const statusFilters = [
 
 export default function PwaAssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([])
+  const [myAssetIds, setMyAssetIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [mineOnly, setMineOnly] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [canCreate, setCanCreate] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -54,6 +56,9 @@ export default function PwaAssetsPage() {
   useEffect(() => {
     fetch('/api/auth/me').then(r => r.ok ? r.json() : null).then(me => {
       if (me?.permissions?.includes('assets.create')) setCanCreate(true)
+    })
+    fetch('/api/assets/my').then(r => r.ok ? r.json() : []).then((mine: Asset[]) => {
+      setMyAssetIds(new Set(mine.map((a: Asset) => a.id)))
     })
     loadAssets()
   }, [])

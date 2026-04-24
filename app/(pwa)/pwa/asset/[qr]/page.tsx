@@ -49,6 +49,7 @@ export default async function AssetPwaPage({ params }: Params) {
 
   // Get last checkout user info
   let heldByUser: { username: string } | null = null
+  let heldByUserId: string | null = null
   if (asset.status === 'in_use') {
     const { data: lastLog } = await supabase
       .from('asset_logs')
@@ -59,6 +60,7 @@ export default async function AssetPwaPage({ params }: Params) {
       .limit(1)
       .single()
     heldByUser = (lastLog as any)?.users ?? null
+    heldByUserId = lastLog?.user_id ?? null
   }
 
   // Get history
