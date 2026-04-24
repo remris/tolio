@@ -41,7 +41,6 @@ export default function PwaToolsPage() {
       if (me?.permissions?.includes('assets.create')) setCanCreate(true)
     })
     loadAssets()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function loadAssets() {
