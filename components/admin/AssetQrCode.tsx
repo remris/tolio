@@ -185,8 +185,8 @@ export default function AssetQrCode({ qrCode, assetId, assetName }: Props) {
       </div>
 
       {/* Preview */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       {activeUrl
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         ? <img src={activeUrl} alt={`QR Code${assetName ? ` – ${assetName}` : ''}`} className={mode === 'sticker' ? 'w-52' : 'w-40 h-40'} />
         : <div className="w-40 h-40 bg-gray-100 rounded-lg animate-pulse" />
       }
