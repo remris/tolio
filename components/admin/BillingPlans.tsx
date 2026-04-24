@@ -17,10 +17,9 @@ export default function BillingPlans({ currentPlan, hasStripeCustomer }: Props) 
   const [error, setError] = useState<string | null>(null)
 
   async function handleSelect(planId: PlanId) {
-    if (planId === currentPlan) return
+    if (planId === currentPlan || planId === 'free') return
     setLoading(planId)
     setError(null)
-
     try {
       const res = await fetch('/api/billing/checkout', {
         method: 'POST',
@@ -54,16 +53,19 @@ export default function BillingPlans({ currentPlan, hasStripeCustomer }: Props) 
 
   return (
     <div className="space-y-6">
-      {/* Interval toggle */}
+      {/* Interval toggle – nur anzeigen wenn nicht free */}
       <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl w-fit">
         {(['monthly', 'yearly'] as const).map((iv) => (
           <button
             key={iv}
             onClick={() => setInterval(iv)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${interval === iv ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${interval === iv ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
           >
-            {iv === 'monthly' ? 'Monatlich' : 'Jährlich'}
-            {iv === 'yearly' && <span className="ml-1.5 text-xs text-green-600 font-semibold">–2 Monate</span>}
+            {iv === 'monthly' ? 'Monatlich' : (
+              <span className="flex items-center gap-1.5">
+                Jährlich <span className="text-xs text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded-full">spare bis 33%</span>
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -72,9 +74,16 @@ export default function BillingPlans({ currentPlan, hasStripeCustomer }: Props) 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {plans.map((plan) => {
           const isCurrent = plan.id === currentPlan
-          const price = interval === 'yearly' ? plan.priceYearly : plan.priceMonthly
-          const perMonth = interval === 'yearly' ? Math.round(plan.priceYearly / 12) : plan.priceMonthly
+          const isFree = plan.id === 'free'
           const isLoading = loading === plan.id
+
+          // Preisanzeige
+          const monthlyEquiv = interval === 'yearly' && !isFree
+            ? Math.round(plan.priceYearly / 12)
+            : plan.priceMonthly
+          const yearlySaving = !isFree
+            ? plan.priceMonthly * 12 - plan.priceYearly
+            : 0
 
           return (
             <div
@@ -83,74 +92,101 @@ export default function BillingPlans({ currentPlan, hasStripeCustomer }: Props) 
                 plan.popular
                   ? 'border-indigo-600 shadow-lg shadow-indigo-100'
                   : isCurrent
-                    ? 'border-green-400'
+                    ? 'border-green-400 shadow-sm'
                     : 'border-gray-100'
               }`}
             >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+              {plan.popular && !isCurrent && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
                     <Zap className="w-3 h-3" /> Empfohlen
                   </span>
                 </div>
               )}
               {isCurrent && (
-                <div className="absolute -top-3 right-4">
-                  <span className="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    Aktuell
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span className="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
+                    ✓ Aktiver Plan
                   </span>
                 </div>
               )}
 
+              {/* Header */}
               <div>
                 <p className="font-bold text-gray-900 text-lg">{plan.name}</p>
                 <p className="text-sm text-gray-500">{plan.description}</p>
               </div>
 
+              {/* Preis */}
               <div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold text-gray-900">€{perMonth}</span>
-                  <span className="text-gray-400 text-sm">/Monat</span>
-                </div>
-                {interval === 'yearly' && (
-                  <p className="text-xs text-gray-400 mt-0.5">€{price} / Jahr abgerechnet</p>
+                {isFree ? (
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-extrabold text-gray-900">€0</span>
+                    <span className="text-gray-400 text-sm">/ dauerhaft</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-extrabold text-gray-900">
+                        €{interval === 'yearly' ? monthlyEquiv : plan.priceMonthly}
+                      </span>
+                      <span className="text-gray-400 text-sm">/Monat</span>
+                    </div>
+                    {interval === 'yearly' ? (
+                      <p className="text-xs text-green-600 font-medium mt-0.5">
+                        €{plan.priceYearly}/Jahr · spare €{yearlySaving}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        oder €{plan.priceYearly}/Jahr (spare €{yearlySaving})
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 
+              {/* Features */}
               <ul className="space-y-2 flex-1">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check className="w-4 h-4 text-indigo-500 shrink-0" />
+                    <Check className={`w-4 h-4 shrink-0 ${plan.popular ? 'text-indigo-500' : 'text-gray-400'}`} />
                     {f}
                   </li>
                 ))}
               </ul>
 
-              <button
-                onClick={() => handleSelect(plan.id)}
-                disabled={isCurrent || !!loading}
-                className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
-                  isCurrent
-                    ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
-                    : plan.popular
-                      ? 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200 disabled:opacity-50'
-                }`}
-              >
-                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isCurrent ? 'Aktiver Plan' : `Wechseln zu ${plan.name}`}
-              </button>
+              {/* CTA */}
+              {isFree ? (
+                <div className={`w-full py-2.5 rounded-xl text-sm font-semibold text-center ${isCurrent ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-50 text-gray-400 border border-gray-200'}`}>
+                  {isCurrent ? 'Aktiver Plan' : 'Kostenlos'}
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleSelect(plan.id)}
+                  disabled={isCurrent || !!loading}
+                  className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 ${
+                    isCurrent
+                      ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
+                      : plan.popular
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        : 'bg-gray-900 text-white hover:bg-gray-800'
+                  }`}
+                >
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {isCurrent ? 'Aktiver Plan' : `${plan.name} wählen`}
+                </button>
+              )}
             </div>
           )
         })}
       </div>
 
-      {/* Billing portal */}
+      {/* Stripe Billing Portal */}
       {hasStripeCustomer && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <p className="font-semibold text-gray-900">Rechnungen & Zahlungsmethoden</p>
-            <p className="text-sm text-gray-500">Rechnungshistorie, Zahlungsmethode ändern, Abo kündigen</p>
+            <p className="text-sm text-gray-500 mt-0.5">Rechnungshistorie einsehen, Zahlungsmethode ändern, Abo kündigen</p>
           </div>
           <button
             onClick={handlePortal}
@@ -169,4 +205,3 @@ export default function BillingPlans({ currentPlan, hasStripeCustomer }: Props) 
     </div>
   )
 }
-

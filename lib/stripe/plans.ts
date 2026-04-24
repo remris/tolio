@@ -1,35 +1,54 @@
-export type PlanId = 'starter' | 'pro' | 'enterprise'
+export type PlanId = 'free' | 'starter' | 'pro'
 
 export interface Plan {
   id: PlanId
   name: string
   description: string
-  priceMonthly: number // EUR
-  priceYearly: number  // EUR
+  priceMonthly: number   // EUR/Monat
+  priceYearly: number    // EUR/Jahr (Gesamtbetrag)
   currency: string
-  assetLimit: number   // -1 = unlimited
-  userLimit: number    // -1 = unlimited
+  assetLimit: number     // -1 = unlimited
+  userLimit: number      // -1 = unlimited
   features: string[]
-  stripePriceIdMonthly: string
-  stripePriceIdYearly: string
+  stripePriceIdMonthly: string | null
+  stripePriceIdYearly: string | null
   popular?: boolean
 }
 
 export const PLANS: Record<PlanId, Plan> = {
+  free: {
+    id: 'free',
+    name: 'Free',
+    description: 'Zum Ausprobieren',
+    priceMonthly: 0,
+    priceYearly: 0,
+    currency: 'eur',
+    assetLimit: 10,
+    userLimit: 2,
+    features: [
+      'Bis zu 10 Assets',
+      'Bis zu 2 Mitarbeiter',
+      'QR-Code-Sticker',
+      'Basis-Dashboard',
+    ],
+    stripePriceIdMonthly: null,
+    stripePriceIdYearly: null,
+  },
   starter: {
     id: 'starter',
     name: 'Starter',
     description: 'Für kleine Betriebe',
-    priceMonthly: 19,
-    priceYearly: 190,
+    priceMonthly: 12,
+    priceYearly: 99,
     currency: 'eur',
-    assetLimit: 25,
+    assetLimit: 50,
     userLimit: 5,
     features: [
-      'Bis zu 25 Assets',
+      'Bis zu 50 Assets',
       'Bis zu 5 Mitarbeiter',
-      'QR-Code-Sticker',
-      'Basis-Verlauf',
+      'Fotos & Schadensdoku',
+      'Wartungsplan',
+      'Offline-PWA',
       'E-Mail-Support',
     ],
     stripePriceIdMonthly: process.env.STRIPE_PRICE_STARTER_MONTHLY ?? '',
@@ -39,48 +58,28 @@ export const PLANS: Record<PlanId, Plan> = {
     id: 'pro',
     name: 'Pro',
     description: 'Für wachsende Betriebe',
-    priceMonthly: 49,
-    priceYearly: 490,
+    priceMonthly: 25,
+    priceYearly: 199,
     currency: 'eur',
-    assetLimit: 150,
-    userLimit: 25,
+    assetLimit: -1,
+    userLimit: 50,
     features: [
-      'Bis zu 150 Assets',
-      'Bis zu 25 Mitarbeiter',
-      'Fotos & Schadensdoku',
+      'Unbegrenzte Assets',
+      'Bis zu 50 Mitarbeiter',
+      'Alle Starter-Features',
       'Push-Benachrichtigungen',
-      'Wartungsplan',
       'CSV-Export',
+      'Stripe Billing Portal',
       'Prioritäts-Support',
     ],
     popular: true,
     stripePriceIdMonthly: process.env.STRIPE_PRICE_PRO_MONTHLY ?? '',
     stripePriceIdYearly: process.env.STRIPE_PRICE_PRO_YEARLY ?? '',
   },
-  enterprise: {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'Für große Betriebe',
-    priceMonthly: 129,
-    priceYearly: 1290,
-    currency: 'eur',
-    assetLimit: -1,
-    userLimit: -1,
-    features: [
-      'Unbegrenzte Assets',
-      'Unbegrenzte Mitarbeiter',
-      'Alle Pro-Features',
-      'API-Zugang',
-      'Dedizierter Support',
-      'SLA-Garantie',
-    ],
-    stripePriceIdMonthly: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY ?? '',
-    stripePriceIdYearly: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY ?? '',
-  },
 }
 
 export function getPlan(planId: string | null | undefined): Plan {
-  return PLANS[(planId as PlanId) ?? 'starter'] ?? PLANS.starter
+  return PLANS[(planId as PlanId) ?? 'free'] ?? PLANS.free
 }
 
 export function checkAssetLimit(plan: Plan, currentCount: number): boolean {
@@ -92,4 +91,3 @@ export function checkUserLimit(plan: Plan, currentCount: number): boolean {
   if (plan.userLimit === -1) return true
   return currentCount < plan.userLimit
 }
-

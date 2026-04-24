@@ -6,7 +6,7 @@ import { PLANS, type PlanId } from '@/lib/stripe/plans'
 import { z } from 'zod'
 
 const schema = z.object({
-  planId: z.enum(['starter', 'pro', 'enterprise']),
+  planId: z.enum(['starter', 'pro']),
   interval: z.enum(['monthly', 'yearly']).default('monthly'),
 })
 
