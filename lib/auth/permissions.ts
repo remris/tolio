@@ -23,9 +23,12 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     .eq('role_id', user.role_id ?? '')
 
   const permissions: PermissionKey[] =
-    rolePerms?.flatMap((rp: { permissions: { key: string } | null }) =>
-      rp.permissions ? [rp.permissions.key as PermissionKey] : [],
-    ) ?? []
+    rolePerms?.flatMap((rp) => {
+      const perm = rp.permissions as { key: string } | null | { key: string }[]
+      if (!perm) return []
+      if (Array.isArray(perm)) return perm.map(p => p.key as PermissionKey)
+      return [perm.key as PermissionKey]
+    }) ?? []
 
   return {
     id: user.id,
