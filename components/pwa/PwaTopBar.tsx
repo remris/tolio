@@ -1,4 +1,4 @@
-m 'also fix''use client'
+'use client'
 
 import { Wrench } from 'lucide-react'
 
@@ -12,4 +12,3 @@ export default function PwaTopBar() {
     </header>
   )
 }
-
