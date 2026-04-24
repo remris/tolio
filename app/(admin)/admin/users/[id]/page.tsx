@@ -1,13 +1,15 @@
-﻿import { createClient } from '@/lib/supabase/server'
+﻿import { createServiceClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/permissions'
 import { notFound, redirect } from 'next/navigation'
 import UserForm from '@/components/admin/UserForm'
+
 type Params = { params: Promise<{ id: string }> }
+
 export default async function EditUserPage({ params }: Params) {
   const { id } = await params
   const session = await getSessionUser()
   if (!session) redirect('/login')
-  const supabase = await createClient()
+  const supabase = await createServiceClient()
   const [{ data: user }, { data: roles }] = await Promise.all([
     supabase
       .from('users')
@@ -22,9 +24,10 @@ export default async function EditUserPage({ params }: Params) {
   ])
   if (!user) notFound()
   return (
-    <div className="max-w-md">
+    <div className="max-w-lg">
       <h1 className="text-2xl font-bold mb-6">Mitarbeiter bearbeiten</h1>
       <UserForm roles={roles ?? []} user={user} />
     </div>
   )
 }
+

@@ -6,9 +6,9 @@ import { z } from 'zod'
 
 const schema = z.object({
   username: z.string().min(2),
-  email: z.string().email().optional(),
+  email: z.string().email().optional().nullable(),
   password: z.string().min(6),
-  role_id: z.string().uuid().optional(),
+  role_id: z.string().uuid().optional().nullable(),
 })
 
 export async function GET() {

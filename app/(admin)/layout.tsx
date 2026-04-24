@@ -35,17 +35,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex h-screen bg-gray-50">
       <AdminSidebar username={session.username} companyName={company?.name ?? ''} />
       <main className="flex-1 overflow-y-auto p-6">
-        {isBlocked ? (
-          <div className="flex flex-col items-center justify-center h-full text-center gap-4">
-            <p className="text-2xl font-bold text-gray-900">Subscription abgelaufen</p>
-            <p className="text-gray-500 text-sm">Dein Zugang wurde gesperrt. Bitte erneuere deine Subscription.</p>
-            <a href="mailto:support@tolio.app" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">
-              Support kontaktieren
-            </a>
-          </div>
-        ) : (
-          children
-        )}
+        <div className="max-w-7xl mx-auto w-full">
+          {isBlocked ? (
+            <div className="flex flex-col items-center justify-center h-full text-center gap-4">
+              <p className="text-2xl font-bold text-gray-900">Subscription abgelaufen</p>
+              <p className="text-gray-500 text-sm">Dein Zugang wurde gesperrt. Bitte erneuere deine Subscription.</p>
+              <a href="mailto:support@tolio.app" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">
+                Support kontaktieren
+              </a>
+            </div>
+          ) : (
+            children
+          )}
+        </div>
       </main>
     </div>
   )
