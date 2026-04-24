@@ -7,6 +7,7 @@ const updateSchema = z.object({
   name: z.string().min(1).optional(),
   status: z.enum(['available', 'in_use', 'broken', 'maintenance']).optional(),
   notes: z.string().optional(),
+  location_id: z.string().uuid().nullable().optional(),
   license_plate: z.string().optional(),
   mileage: z.number().optional(),
   tuv_date: z.string().nullable().optional(),
@@ -16,6 +17,9 @@ const updateSchema = z.object({
   manufacturer: z.string().optional(),
   machine_last_maintenance: z.string().nullable().optional(),
   machine_next_maintenance: z.string().nullable().optional(),
+  maintenance_interval_months: z.number().int().min(1).max(120).nullable().optional(),
+  tool_serial_no: z.string().nullable().optional(),
+  tool_condition: z.enum(['good', 'worn', 'damaged']).nullable().optional(),
 })
 
 type Params = { params: Promise<{ id: string }> }
@@ -51,7 +55,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const supabase = await createClient()
 
-  // Verify asset belongs to company
   const { data: asset } = await supabase
     .from('assets')
     .select('id, type')
@@ -87,7 +90,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   if (asset.type === 'machine' && (serial_no !== undefined || manufacturer !== undefined || machine_last_maintenance !== undefined || machine_next_maintenance !== undefined || maintenance_interval_months !== undefined)) {
-    // Auto-calculate next_maintenance if interval and last_maintenance provided
     let computedNext = machine_next_maintenance
     if (!computedNext && machine_last_maintenance && maintenance_interval_months) {
       const d = new Date(machine_last_maintenance)
