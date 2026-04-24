@@ -44,7 +44,7 @@ export default function RegisterPage() {
       return
     }
 
-    router.replace('/admin/dashboard')
+    router.replace('/dashboard')
   }
 
   return (

@@ -37,7 +37,7 @@ export default function UserActions({ userId, active }: Props) {
     const res = await fetch(`/api/users/${userId}`, { method: 'DELETE' })
     setLoading(false)
     if (res.ok) {
-      router.push('/admin/users')
+      router.push('/users')
     } else {
       const d = await res.json()
       setError(d.error ?? 'Fehler.')

@@ -15,12 +15,12 @@ import {
 } from 'lucide-react'
 
 const nav = [
-  { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, adminOnly: false },
-  { label: 'Assets', href: '/admin/assets', icon: Wrench, adminOnly: false },
-  { label: 'Mitarbeiter', href: '/admin/users', icon: Users, adminOnly: true },
-  { label: 'Rollen & Rechte', href: '/admin/roles', icon: ShieldCheck, adminOnly: true },
-  { label: 'Abonnement', href: '/admin/billing', icon: CreditCard, adminOnly: true },
-  { label: 'Einstellungen', href: '/admin/settings', icon: Settings, adminOnly: true },
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, adminOnly: false },
+  { label: 'Assets', href: '/assets', icon: Wrench, adminOnly: false },
+  { label: 'Mitarbeiter', href: '/users', icon: Users, adminOnly: true },
+  { label: 'Rollen & Rechte', href: '/roles', icon: ShieldCheck, adminOnly: true },
+  { label: 'Abonnement', href: '/billing', icon: CreditCard, adminOnly: true },
+  { label: 'Einstellungen', href: '/settings', icon: Settings, adminOnly: true },
 ]
 
 interface Props {

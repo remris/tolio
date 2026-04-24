@@ -12,7 +12,7 @@ export default function DeleteAssetButton({ assetId }: { assetId: string }) {
     setLoading(true)
     const res = await fetch(`/api/assets/${assetId}`, { method: 'DELETE' })
     if (res.ok) {
-      router.push('/admin/assets')
+      router.push('/assets')
       router.refresh()
     } else {
       const data = await res.json()

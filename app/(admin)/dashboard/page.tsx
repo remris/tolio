@@ -91,7 +91,7 @@ export default async function DashboardPage() {
           <p className="text-sm text-gray-400 mt-0.5">{company?.name} · Übersicht Ihres Bestands.</p>
         </div>
         <Link
-          href="/admin/assets"
+          href="/assets"
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           Assets verwalten
@@ -117,7 +117,7 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl px-5 py-3">
           <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
           <p className="text-sm text-red-700 font-medium">{overdueCount} Wartung{overdueCount > 1 ? 'en sind' : ' ist'} überfällig.</p>
-          <Link href="/admin/assets?type=machine" className="ml-auto text-xs text-red-600 underline">Anzeigen</Link>
+          <Link href="/assets?type=machine" className="ml-auto text-xs text-red-600 underline">Anzeigen</Link>
         </div>
       )}
 
@@ -127,7 +127,7 @@ export default async function DashboardPage() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
           <div className="px-5 py-4 flex items-center justify-between border-b border-gray-50">
             <p className="text-sm font-semibold text-gray-900">Zuletzt hinzugefügt</p>
-            <Link href="/admin/assets" className="text-xs text-indigo-600 hover:underline">Alle anzeigen</Link>
+            <Link href="/assets" className="text-xs text-indigo-600 hover:underline">Alle anzeigen</Link>
           </div>
           <ul className="divide-y divide-gray-50">
             {recentAssets?.map((a) => {

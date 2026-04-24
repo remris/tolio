@@ -47,7 +47,7 @@ export default function UserForm({ roles, user }: { roles: Role[]; user?: Existi
     })
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Fehler.'); setLoading(false); return }
-    router.push('/admin/users')
+    router.push('/users')
     router.refresh()
   }
 

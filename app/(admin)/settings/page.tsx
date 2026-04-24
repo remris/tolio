@@ -6,7 +6,7 @@ import SettingsForm from '@/components/admin/SettingsForm'
 export default async function SettingsPage() {
   const session = await getAnySession()
   if (!session) redirect('/login')
-  if (!session.is_admin) redirect('/admin/dashboard')
+  if (!session.is_admin) redirect('/dashboard')
 
   const supabase = await createServiceClient()
   const { data: company } = await supabase

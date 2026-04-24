@@ -120,7 +120,7 @@ export default function AssetForm({ asset, redirectTo }: Props) {
       await fetch(`/api/assets/${assetId}/photos`, { method: 'POST', body: fd })
     }
 
-    router.push(redirectTo ?? '/admin/assets')
+    router.push(redirectTo ?? '/assets')
     router.refresh()
   }
 

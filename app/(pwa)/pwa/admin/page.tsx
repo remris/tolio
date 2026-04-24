@@ -104,7 +104,7 @@ export default function PwaAdminPage() {
             <p className="text-xs text-gray-500">Plan verwalten</p>
           </div>
         </div>
-        <a href="/admin/billing" className="flex items-center gap-1 text-indigo-600 text-sm font-medium">
+        <a href="/billing" className="flex items-center gap-1 text-indigo-600 text-sm font-medium">
           Öffnen <ExternalLink className="w-3.5 h-3.5" />
         </a>
       </div>

@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 export default async function RolesPage() {
   const session = await getAnySession()
   if (!session) redirect('/login')
-  if (!session.is_admin) redirect('/admin/dashboard')
+  if (!session.is_admin) redirect('/dashboard')
   const supabase = await createClient()
 
   const [{ data: roles }, { data: permissions }] = await Promise.all([

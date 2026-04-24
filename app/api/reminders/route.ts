@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
         try { await sendReminder(email, company?.name ?? '', asset.name, formatDate(v.tuv_date), 'tuv'); sent++ }
         catch (e: any) { errors.push(e.message) }
       }
-      await sendPushToCompany(supabase, asset.company_id, '⚠️ TÜV fällig', `${asset.name} – TÜV am ${formatDate(v.tuv_date)}`, '/admin/dashboard')
+      await sendPushToCompany(supabase, asset.company_id, '⚠️ TÜV fällig', `${asset.name} – TÜV am ${formatDate(v.tuv_date)}`, '/dashboard')
     }
 
     if (v.next_maintenance_at && v.next_maintenance_at >= today && v.next_maintenance_at <= warnIso) {
@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
         try { await sendReminder(email, company?.name ?? '', asset.name, formatDate(v.next_maintenance_at), 'maintenance'); sent++ }
         catch (e: any) { errors.push(e.message) }
       }
-      await sendPushToCompany(supabase, asset.company_id, '⚠️ Wartung fällig', `${asset.name} – Wartung am ${formatDate(v.next_maintenance_at)}`, '/admin/dashboard')
+      await sendPushToCompany(supabase, asset.company_id, '⚠️ Wartung fällig', `${asset.name} – Wartung am ${formatDate(v.next_maintenance_at)}`, '/dashboard')
     }
   }
 
@@ -126,7 +126,7 @@ export async function GET(req: NextRequest) {
       try { await sendReminder(email, company?.name ?? '', asset.name, formatDate(m.next_maintenance), 'maintenance'); sent++ }
       catch (e: any) { errors.push(e.message) }
     }
-    await sendPushToCompany(supabase, asset.company_id, '⚠️ Wartung fällig', `${asset.name} – Wartung am ${formatDate(m.next_maintenance)}`, '/admin/dashboard')
+    await sendPushToCompany(supabase, asset.company_id, '⚠️ Wartung fällig', `${asset.name} – Wartung am ${formatDate(m.next_maintenance)}`, '/dashboard')
   }
 
   return NextResponse.json({ ok: true, sent, errors })
