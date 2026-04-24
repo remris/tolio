@@ -1,11 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -16,13 +14,17 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('E-Mail oder Passwort falsch.')
+      setError(error.message)
       setLoading(false)
       return
     }
-    router.refresh()
+    if (!data.session) {
+      setError('Keine Session erhalten – bitte E-Mail bestätigen.')
+      setLoading(false)
+      return
+    }
     window.location.href = '/admin/dashboard'
   }
 
