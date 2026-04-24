@@ -11,6 +11,7 @@ import {
   CreditCard,
   LogOut,
   Package2,
+  Settings,
 } from 'lucide-react'
 
 const nav = [
@@ -19,6 +20,7 @@ const nav = [
   { label: 'Mitarbeiter', href: '/admin/users', icon: Users },
   { label: 'Rollen & Rechte', href: '/admin/roles', icon: ShieldCheck },
   { label: 'Abonnement', href: '/admin/billing', icon: CreditCard },
+  { label: 'Einstellungen', href: '/admin/settings', icon: Settings },
 ]
 
 interface Props {

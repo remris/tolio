@@ -1,52 +1,27 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Html5QrcodeScanner } from 'html5-qrcode'
-import PushSubscribeButton from '@/components/pwa/PushSubscribeButton'
+import dynamic from 'next/dynamic'
+import { QrCode } from 'lucide-react'
+
+const QrScanner = dynamic(() => import('@/components/pwa/QrScanner'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex flex-col items-center p-4">
+      <div className="w-full max-w-sm aspect-square bg-gray-900 rounded-2xl flex items-center justify-center">
+        <QrCode className="w-12 h-12 text-gray-600 animate-pulse" />
+      </div>
+    </div>
+  ),
+})
 
 export default function ScanPage() {
-  const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null)
-
-  useEffect(() => {
-    scannerRef.current = new Html5QrcodeScanner(
-      'qr-reader',
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      false,
-    )
-
-    scannerRef.current.render(
-      (decodedText) => {
-        scannerRef.current?.clear()
-        // decodedText may be a full URL or just the UUID
-        let qr = decodedText.trim()
-        try {
-          const url = new URL(qr)
-          const parts = url.pathname.split('/')
-          qr = parts[parts.length - 1]
-        } catch {
-          // not a URL, use as-is
-        }
-        router.push(`/pwa/asset/${qr}`)
-      },
-      () => {},
-    )
-
-    return () => {
-      scannerRef.current?.clear().catch(() => {})
-    }
-  }, [router])
-
   return (
-    <div className="flex flex-col items-center justify-center flex-1 p-6">
-      <h1 className="text-xl font-bold mb-4">QR-Code scannen</h1>
-      <div className="mb-4">
-        <PushSubscribeButton />
+    <div className="space-y-4 pt-2">
+      <div className="px-4">
+        <h1 className="text-xl font-bold text-gray-900">QR-Code scannen</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Asset aus- oder einchecken</p>
       </div>
-      <div id="qr-reader" className="w-full max-w-sm rounded-xl overflow-hidden" />
-      {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+      <QrScanner />
     </div>
   )
 }

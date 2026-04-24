@@ -1,7 +1,7 @@
 You are a senior software engineer
 
 #Task
-rredesing wie es im screenshot ist von lovable ich möchte das du den style so triffst aktuell ist das alles zu schwarz und die nav items haben keine icons und unten in der navbar wird der user nicht angzeigt passe es an wie beim screenshots von lovable inhalt des dashbaords machen wir später wenn wir wissewn was wir alles darstellen können.
+Arbeite die PWA aus das diese nun voll funktionsfähig ist. Alle Funktionen müssen implementiert und getestet werden, damit die Mitarbeiter ihre Assets problemlos ausleihen und zurückgeben können. Achte darauf, dass die QR-Code-Scanfunktion zuverlässig funktioniert und die Benutzeroberfläche intuitiv gestaltet ist.
 
 #OUTPUT REQUIREMENTS
 -Write production-ready code

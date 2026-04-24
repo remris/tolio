@@ -6,6 +6,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const isAdminRoute = pathname.startsWith('/admin')
+  const isPwaRoute = pathname.startsWith('/pwa')
   const isAuthRoute = pathname === '/login' || pathname === '/register' || pathname === '/company-login'
 
   if (isAdminRoute && !user) {
@@ -18,6 +19,15 @@ export async function middleware(request: NextRequest) {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = '/admin/dashboard'
     return NextResponse.redirect(dashboardUrl)
+  }
+
+  if (isPwaRoute) {
+    const employeeSession = request.cookies.get('tolio_employee_session')
+    if (!employeeSession && !user) {
+      const loginUrl = request.nextUrl.clone()
+      loginUrl.pathname = '/company-login'
+      return NextResponse.redirect(loginUrl)
+    }
   }
 
   return supabaseResponse

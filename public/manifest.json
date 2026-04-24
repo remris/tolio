@@ -1,22 +1,33 @@
 {
-  "name": "tolio",
+  "name": "tolio – Asset Management",
   "short_name": "tolio",
   "description": "Asset Management für Betriebe",
-  "start_url": "/pwa/scan",
+  "start_url": "/pwa/dashboard",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#f9fafb",
+  "theme_color": "#4F46E5",
   "orientation": "portrait",
+  "categories": ["business", "productivity"],
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "QR scannen",
+      "url": "/pwa/scan",
+      "description": "QR-Code scannen"
     }
   ]
 }
