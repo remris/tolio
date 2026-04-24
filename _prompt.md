@@ -1,8 +1,7 @@
 You are a senior software engineer
 
 #Task
-Webpage klick auf Asset-Details Seite, um Details zu sehen nicht explizit  Details und passe an das wirklich wie bei wpa ist und überall gelcih sit am ende 
-auch hier table mit 3 unterkategorien damit auch einzelne cells da sein können die andere nciht rbauchen Zb kennzeicehn sit hier auch bei werkzeugen drin
+das solltest du anpassen mit 3 kategorien einklappbar ähnlich zur eher so wiue mit dem beispiel im 2ten screenshot.
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture

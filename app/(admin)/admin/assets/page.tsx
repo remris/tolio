@@ -1,35 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/permissions'
-import AssetTable from '@/components/admin/AssetTable'
+import AssetCategoryTable from '@/components/admin/AssetCategoryTable'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-export default async function AssetsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ type?: string }>
-}) {
-  const { type } = await searchParams
+export default async function AssetsPage() {
   const session = await getSessionUser()
   if (!session) redirect('/login')
   const supabase = await createClient()
 
-  let query = supabase
+  const { data: assets } = await supabase
     .from('assets')
     .select('*, vehicles(*), machines(*), tools(*)')
     .eq('company_id', session.company_id)
     .order('created_at', { ascending: false })
-
-  if (type) query = query.eq('type', type)
-
-  const { data: assets } = await query
-
-  const tabs = [
-    { label: 'Alle', value: '' },
-    { label: 'Werkzeuge', value: 'tool' },
-    { label: 'Maschinen', value: 'machine' },
-    { label: 'Fahrzeuge', value: 'vehicle' },
-  ]
 
   return (
     <div className="max-w-5xl">
@@ -43,23 +27,7 @@ export default async function AssetsPage({
         </Link>
       </div>
 
-      <div className="flex gap-2 mb-4">
-        {tabs.map((tab) => (
-          <Link
-            key={tab.value}
-            href={tab.value ? `/admin/assets?type=${tab.value}` : '/admin/assets'}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-              (type ?? '') === tab.value
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </div>
-
-      <AssetTable assets={assets ?? []} />
+      <AssetCategoryTable assets={assets ?? []} />
     </div>
   )
 }
