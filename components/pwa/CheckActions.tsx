@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AssetStatus, AssetType } from '@/lib/types'
-import { CheckCircle, XCircle, LogOut, LogIn, AlertTriangle } from 'lucide-react'
+import { CheckCircle, XCircle, LogOut, LogIn, AlertTriangle, WifiOff } from 'lucide-react'
 import PhotoPicker from './PhotoPicker'
+import { enqueueAction } from '@/lib/offline/queue'
 
 interface Props {
   assetId: string
@@ -56,11 +57,34 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
     if (isVehicle && mileage) body.mileage = parseInt(mileage, 10)
     if (isVehicle && action === 'checkin' && fuelStatus) body.fuel_status = fuelStatus
 
-    const res = await fetch(`/api/assets/${assetId}/${action === 'checkout' ? 'checkout' : 'checkin'}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
+    const endpoint = `/api/assets/${assetId}/${action === 'checkout' ? 'checkout' : 'checkin'}`
+    const label = action === 'checkout' ? 'Auschecken' : 'Zurückgeben'
+
+    // Offline: queue the action
+    if (!navigator.onLine) {
+      await enqueueAction({ url: endpoint, method: 'POST', body: JSON.stringify(body), label })
+      setDone(action)
+      setLoading(false)
+      setTimeout(() => router.push('/pwa/assets'), 1500)
+      return
+    }
+
+    let res: Response
+    try {
+      res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    } catch {
+      // Network error – queue for later
+      await enqueueAction({ url: endpoint, method: 'POST', body: JSON.stringify(body), label })
+      setDone(action)
+      setLoading(false)
+      setTimeout(() => router.push('/pwa/assets'), 1500)
+      return
+    }
+
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Fehler.'); setLoading(false); return }
 
@@ -71,7 +95,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
     setDone(action)
     setLoading(false)
     router.refresh()
-    setTimeout(() => router.push('/pwa/assets'), 1500)
+    setTimeout(() => { router.refresh(); router.push('/pwa/assets') }, 1200)
   }
 
   async function handleBroken() {
@@ -93,17 +117,21 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
     setDone('broken')
     setLoading(false)
     router.refresh()
-    setTimeout(() => router.push('/pwa/assets'), 1500)
+    setTimeout(() => { router.refresh(); router.push('/pwa/assets') }, 1200)
   }
 
   if (done) {
+    const queued = !navigator.onLine
     return (
       <div className="text-center py-6 space-y-3">
         {done === 'broken'
           ? <AlertTriangle className="w-12 h-12 text-red-400 mx-auto" />
-          : <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />}
+          : queued
+            ? <WifiOff className="w-12 h-12 text-amber-400 mx-auto" />
+            : <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />}
         <p className="font-semibold text-gray-900">
-          {done === 'checkout' ? 'Erfolgreich ausgecheckt!' : done === 'checkin' ? 'Erfolgreich eingecheckt!' : 'Als defekt gemeldet!'}
+          {done === 'checkout' ? 'Ausgecheckt!' : done === 'checkin' ? 'Eingecheckt!' : 'Defekt gemeldet!'}
+          {queued && ' (wird synchronisiert)'}
         </p>
         <p className="text-sm text-gray-500">Weiterleitung…</p>
       </div>

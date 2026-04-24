@@ -1,7 +1,11 @@
 You are a senior software engineer
 
 #Task
-Beim auschekcen zurückgeben oer dfefekt melden sollte es auch möglich sein imgs hinzuzufügen.
+Prüfe ob diese dinge erledigt sind sonst erledige sie
+### 💳 Billing Erweiterungen
+- [ ] Mehrere Subscription-Pläne (Starter / Pro / Enterprise)
+- [ ] Nutzungsbasierte Abrechnung (per Asset)
+- [ ] Rechnungen via Stripe Billing Portal
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture

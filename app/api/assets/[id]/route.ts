@@ -61,14 +61,21 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   if (!asset) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const { name, status, notes, license_plate, mileage, tuv_date,
+  const { name, status, notes, location_id, license_plate, mileage, tuv_date,
     last_maintenance_at, next_maintenance_at, serial_no, manufacturer,
-    machine_last_maintenance, machine_next_maintenance } = parsed.data
+    machine_last_maintenance, machine_next_maintenance, maintenance_interval_months,
+    tool_serial_no, tool_condition } = parsed.data
 
-  if (name || status || notes !== undefined) {
+  if (name || status || notes !== undefined || location_id !== undefined) {
     await supabase
       .from('assets')
-      .update({ ...(name && { name }), ...(status && { status }), ...(notes !== undefined && { notes }), updated_at: new Date().toISOString() })
+      .update({
+        ...(name && { name }),
+        ...(status && { status }),
+        ...(notes !== undefined && { notes }),
+        ...(location_id !== undefined && { location_id }),
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', id)
   }
 
@@ -79,10 +86,24 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       .eq('asset_id', id)
   }
 
-  if (asset.type === 'machine' && (serial_no !== undefined || manufacturer !== undefined || machine_last_maintenance !== undefined || machine_next_maintenance !== undefined)) {
+  if (asset.type === 'machine' && (serial_no !== undefined || manufacturer !== undefined || machine_last_maintenance !== undefined || machine_next_maintenance !== undefined || maintenance_interval_months !== undefined)) {
+    // Auto-calculate next_maintenance if interval and last_maintenance provided
+    let computedNext = machine_next_maintenance
+    if (!computedNext && machine_last_maintenance && maintenance_interval_months) {
+      const d = new Date(machine_last_maintenance)
+      d.setMonth(d.getMonth() + maintenance_interval_months)
+      computedNext = d.toISOString().slice(0, 10)
+    }
     await supabase
       .from('machines')
-      .update({ serial_no, manufacturer, last_maintenance: machine_last_maintenance, next_maintenance: machine_next_maintenance })
+      .update({ serial_no, manufacturer, last_maintenance: machine_last_maintenance, next_maintenance: computedNext, maintenance_interval_months })
+      .eq('asset_id', id)
+  }
+
+  if (asset.type === 'tool' && (tool_serial_no !== undefined || tool_condition !== undefined)) {
+    await supabase
+      .from('tools')
+      .update({ serial_no: tool_serial_no, condition: tool_condition })
       .eq('asset_id', id)
   }
 

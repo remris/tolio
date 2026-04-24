@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { createServiceClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/permissions'
 import { getEmployeeSession } from '@/lib/auth/employee-session'
@@ -6,6 +8,7 @@ import { assetStatusLabel, assetTypeLabel, formatMileage } from '@/lib/utils'
 import CheckActions from '@/components/pwa/CheckActions'
 import DueDateBadge from '@/components/shared/DueDateBadge'
 import AssetDetailActions from '@/components/pwa/AssetDetailActions'
+import LogHistoryList from '@/components/pwa/LogHistoryList'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
@@ -66,7 +69,7 @@ export default async function AssetPwaPage({ params }: Params) {
   // Get history
   const { data: history } = await supabase
     .from('asset_logs')
-    .select('id, action, note, created_at, users(username)')
+    .select('id, action, note, created_at, mileage, fuel_status, photo_urls, users(username)')
     .eq('asset_id', asset.id)
     .order('created_at', { ascending: false })
     .limit(20)
@@ -177,28 +180,9 @@ export default async function AssetPwaPage({ params }: Params) {
         />
       )}
 
-      {/* History */}
       <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
         <p className="font-semibold text-gray-900 mb-3">Verlauf</p>
-        {!history || history.length === 0 ? (
-          <p className="text-sm text-gray-400">Noch keine Aktivitäten.</p>
-        ) : (
-          <div className="space-y-2">
-            {history.map((log: any) => (
-              <div key={log.id} className="flex items-start gap-3 text-sm">
-                <span className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${log.action === 'check_out' ? 'bg-amber-400' : 'bg-green-400'}`} />
-                <div className="flex-1 min-w-0">
-                  <span className="font-medium text-gray-800">{log.action === 'check_out' ? 'Ausgecheckt' : 'Zurückgegeben'}</span>
-                  <span className="text-gray-500"> von {log.users?.username ?? '–'}</span>
-                  {log.note && <p className="text-xs text-gray-400 italic">„{log.note}"</p>}
-                </div>
-                <span className="text-xs text-gray-400 whitespace-nowrap shrink-0">
-                  {new Date(log.created_at).toLocaleDateString('de-DE')}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+        <LogHistoryList history={(history ?? []) as any} />
       </div>
     </div>
   )

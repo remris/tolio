@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import PwaTopBar from '@/components/pwa/PwaTopBar'
 import PwaBottomNav from '@/components/pwa/PwaBottomNav'
 import SwRegister from '@/components/shared/SwRegister'
+import OfflineBanner from '@/components/pwa/OfflineBanner'
 
 export const metadata: Metadata = {
   title: 'tolio',
@@ -21,6 +22,7 @@ export default function PwaLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <SwRegister />
       <PwaTopBar />
+      <OfflineBanner />
       <main className="flex-1 pb-24">
         {children}
       </main>

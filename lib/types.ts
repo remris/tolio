@@ -47,16 +47,20 @@ export interface Asset {
   status: AssetStatus
   qr_code: string | null
   notes: string | null
+  location_id: string | null
   created_at: string
   updated_at: string
   tool?: Tool
   machine?: Machine
   vehicle?: Vehicle
+  location?: Location
 }
 
 export interface Tool {
   id: string
   asset_id: string
+  serial_no: string | null
+  condition: 'good' | 'worn' | 'damaged' | null
 }
 
 export interface Machine {
@@ -66,6 +70,14 @@ export interface Machine {
   manufacturer: string | null
   last_maintenance: string | null
   next_maintenance: string | null
+  maintenance_interval_months: number | null
+}
+
+export interface Location {
+  id: string
+  company_id: string
+  name: string
+  created_at: string
 }
 
 export interface Vehicle {

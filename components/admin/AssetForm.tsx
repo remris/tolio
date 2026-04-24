@@ -1,13 +1,21 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Asset } from '@/lib/types'
 import { ImagePlus, X } from 'lucide-react'
 
+interface Location { id: string; name: string }
+
 interface Props {
   asset?: Asset
   redirectTo?: string
+}
+
+const conditionLabels: Record<string, string> = {
+  good: 'Gut',
+  worn: 'Verschlissen',
+  damaged: 'Beschädigt',
 }
 
 export default function AssetForm({ asset, redirectTo }: Props) {
@@ -22,21 +30,33 @@ export default function AssetForm({ asset, redirectTo }: Props) {
     type: asset?.type ?? 'tool',
     status: asset?.status ?? 'available',
     notes: asset?.notes ?? '',
+    location_id: asset?.location_id ?? '',
+    // vehicle
     license_plate: a?.vehicles?.license_plate ?? '',
     mileage: a?.vehicles?.mileage ?? 0,
     tuv_date: a?.vehicles?.tuv_date ?? '',
     last_maintenance_at: a?.vehicles?.last_maintenance_at ?? '',
     next_maintenance_at: a?.vehicles?.next_maintenance_at ?? '',
+    // machine
     serial_no: a?.machines?.serial_no ?? '',
     manufacturer: a?.machines?.manufacturer ?? '',
     machine_last_maintenance: a?.machines?.last_maintenance ?? '',
     machine_next_maintenance: a?.machines?.next_maintenance ?? '',
+    maintenance_interval_months: a?.machines?.maintenance_interval_months ?? '',
+    // tool
+    tool_serial_no: a?.tools?.serial_no ?? '',
+    tool_condition: a?.tools?.condition ?? 'good',
   })
   const [photos, setPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [existingPhotos, setExistingPhotos] = useState<string[]>(a?.photo_urls ?? [])
+  const [locations, setLocations] = useState<Location[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/locations').then(r => r.ok ? r.json() : []).then(setLocations)
+  }, [])
 
   function update(field: string, value: string | number) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -71,10 +91,17 @@ export default function AssetForm({ asset, redirectTo }: Props) {
     setError(null)
     setLoading(true)
 
+    const body = {
+      ...form,
+      mileage: Number(form.mileage),
+      maintenance_interval_months: form.maintenance_interval_months ? Number(form.maintenance_interval_months) : null,
+      location_id: form.location_id || null,
+    }
+
     const res = await fetch(isEdit ? `/api/assets/${asset!.id}` : '/api/assets', {
       method: isEdit ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, mileage: Number(form.mileage) }),
+      body: JSON.stringify(body),
     })
 
     if (!res.ok) {
@@ -87,7 +114,6 @@ export default function AssetForm({ asset, redirectTo }: Props) {
     const saved = await res.json()
     const assetId = isEdit ? asset!.id : saved.id
 
-    // Upload new photos
     if (photos.length > 0 && assetId) {
       const fd = new FormData()
       photos.forEach(f => fd.append('photos', f))
@@ -98,6 +124,7 @@ export default function AssetForm({ asset, redirectTo }: Props) {
     router.refresh()
   }
 
+  const type = isEdit ? asset!.type : form.type
   const totalPhotos = existingPhotos.length + photos.length
 
   return (
@@ -122,6 +149,15 @@ export default function AssetForm({ asset, redirectTo }: Props) {
           <option value="in_use">In Verwendung</option>
           <option value="broken">Defekt</option>
           <option value="maintenance">Wartung</option>
+        </select>
+      </Field>
+
+      <Field label="Lagerort">
+        <select value={form.location_id} onChange={(e) => update('location_id', e.target.value)} className={inputCls}>
+          <option value="">– Kein Lagerort –</option>
+          {locations.map(l => (
+            <option key={l.id} value={l.id}>{l.name}</option>
+          ))}
         </select>
       </Field>
 
@@ -164,8 +200,31 @@ export default function AssetForm({ asset, redirectTo }: Props) {
         <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoChange} />
       </Field>
 
-      {(form.type === 'vehicle' || asset?.type === 'vehicle') && (
+      {/* ── Werkzeug ── */}
+      {(type === 'tool') && (
         <>
+          <div className="border-t pt-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Werkzeug-Details</p>
+          </div>
+          <Field label="Seriennummer">
+            <input type="text" value={form.tool_serial_no} onChange={(e) => update('tool_serial_no', e.target.value)} className={inputCls} />
+          </Field>
+          <Field label="Zustand">
+            <select value={form.tool_condition} onChange={(e) => update('tool_condition', e.target.value)} className={inputCls}>
+              {Object.entries(conditionLabels).map(([v, l]) => (
+                <option key={v} value={v}>{l}</option>
+              ))}
+            </select>
+          </Field>
+        </>
+      )}
+
+      {/* ── Fahrzeug ── */}
+      {(type === 'vehicle') && (
+        <>
+          <div className="border-t pt-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Fahrzeug-Details</p>
+          </div>
           <Field label="Kennzeichen" required>
             <input type="text" value={form.license_plate} onChange={(e) => update('license_plate', e.target.value)} className={inputCls} />
           </Field>
@@ -184,8 +243,12 @@ export default function AssetForm({ asset, redirectTo }: Props) {
         </>
       )}
 
-      {(form.type === 'machine' || asset?.type === 'machine') && (
+      {/* ── Maschine ── */}
+      {(type === 'machine') && (
         <>
+          <div className="border-t pt-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Maschinen-Details</p>
+          </div>
           <Field label="Hersteller">
             <input type="text" value={form.manufacturer} onChange={(e) => update('manufacturer', e.target.value)} className={inputCls} />
           </Field>
@@ -195,7 +258,17 @@ export default function AssetForm({ asset, redirectTo }: Props) {
           <Field label="Letzte Wartung">
             <input type="date" value={form.machine_last_maintenance} onChange={(e) => update('machine_last_maintenance', e.target.value)} className={inputCls} />
           </Field>
-          <Field label="Nächste Wartung">
+          <Field label="Wartungsintervall (Monate)">
+            <input
+              type="number" min={1} max={120}
+              value={form.maintenance_interval_months}
+              onChange={(e) => update('maintenance_interval_months', e.target.value)}
+              placeholder="z.B. 6"
+              className={inputCls}
+            />
+            <p className="text-xs text-gray-400 mt-1">Nächste Wartung wird automatisch berechnet, wenn Intervall + letzte Wartung angegeben.</p>
+          </Field>
+          <Field label="Nächste Wartung (manuell überschreiben)">
             <input type="date" value={form.machine_next_maintenance} onChange={(e) => update('machine_next_maintenance', e.target.value)} className={inputCls} />
           </Field>
         </>
@@ -222,4 +295,3 @@ function Field({ label, children, required }: { label: string; children: React.R
     </div>
   )
 }
-

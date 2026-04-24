@@ -106,9 +106,13 @@
 - [ ] White-Label (eigenes Logo / Domain)
 
 ### 💳 Billing Erweiterungen
-- [ ] Mehrere Subscription-Pläne (Starter / Pro / Enterprise)
-- [ ] Nutzungsbasierte Abrechnung (per Asset)
-- [ ] Rechnungen via Stripe Billing Portal
+- [x] Mehrere Subscription-Pläne (Starter / Pro / Enterprise) – `lib/stripe/plans.ts`, Plan-Karten auf `/admin/billing`
+- [x] Nutzungsbasierte Abrechnung (per Asset) – Asset-Limit-Prüfung in `POST /api/assets`, Usage-Bars auf Billing-Seite, `GET /api/billing/usage`
+- [x] Rechnungen via Stripe Billing Portal – `POST /api/billing/portal` erzeugt Stripe Customer Portal Session, Button auf Billing-Seite
+- [x] Stripe Checkout für Plan-Wechsel – `POST /api/billing/checkout` mit Monatlich/Jährlich-Toggle
+- [x] Webhook speichert `plan` + `stripe_price_id` in `subscriptions`, synct `companies.plan`
+- [x] DB-Migration 010: `plan`, `stripe_price_id`, `asset_count`, `user_count` in `subscriptions`; `plan` in `companies`
+- [x] Umgebungsvariablen: `STRIPE_PRICE_STARTER_MONTHLY/YEARLY`, `STRIPE_PRICE_PRO_MONTHLY/YEARLY`, `STRIPE_PRICE_ENTERPRISE_MONTHLY/YEARLY`
 
 ---
 
@@ -160,10 +164,22 @@
 - [x] Tankstatus auswählbar beim Zurückgeben – wird in `asset_logs.fuel_status` gespeichert
 - [x] DB-Migration 007: `fuel_status text` zu `vehicles` + `asset_logs`, `assigned_user_id` Rename
 
-### ⚙️ Maschinen – Wartung
+### ⚙️ Maschinen – Wartungsplan
 - [x] Letzte Wartung + Nächste Wartung als Datumsfelder beim Anlegen/Bearbeiten
-- [ ] Farbiger Badge je nach Nähe des Wartungstermins (grün/gelb/rot)
-- [ ] Dashboard-Widget: „Bald fällige Wartungen" für Maschinen
+- [x] Wartungsintervall in Monaten pro Maschine definierbar
+- [x] Nächste Wartung wird automatisch aus letzter Wartung + Intervall berechnet (API-seitig)
+- [x] Farbiger Badge je nach Nähe des Wartungstermins (grün/gelb/rot) via `DueDateBadge`
+- [x] Dashboard-Widget „Bald fällige Wartungen" für Maschinen + Fahrzeuge (nächste 60 Tage)
+- [x] Rotes Überfälligkeits-Banner im Dashboard bei überschrittenen Wartungen
+
+### 🗂️ Asset-Felder & Lagerorte
+- [x] DB-Migration 009: `maintenance_interval_months` zu `machines`, `serial_no`+`condition` zu `tools`, neue Tabelle `locations`, `location_id` in `assets`
+- [x] Werkzeug: Seriennummer + Zustand (Gut / Verschlissen / Beschädigt) beim Anlegen/Bearbeiten
+- [x] Maschine: Seriennummer, Hersteller, Wartungsintervall beim Anlegen/Bearbeiten
+- [x] Fahrzeug: Kennzeichen, km-Stand, TÜV, Wartungsdaten beim Anlegen/Bearbeiten
+- [x] Lagerort-Dropdown im AssetForm (vorhandene Lagerorte aus DB)
+- [x] Lagerorte in Settings verwaltbar (hinzufügen / löschen) via `/api/locations`
+- [x] `lib/types.ts`: `Tool`, `Machine`, `Asset` um neue Felder ergänzt, `Location`-Interface hinzugefügt
 
 ### 📊 PWA-Dashboard – Verbesserungen
 - [x] Sektion „Meine Ausleihen" mit Schnell-Zurückgabe
@@ -179,6 +195,25 @@
 ### 📷 Fotos beim Checkout / Checkin / Defekt
 - [x] Beim Auschecken, Zurückgeben und Defekt-Melden: bis zu 3 Fotos anhängen
 - [x] Fotos werden in Supabase Storage (`asset-photos/logs/`) gespeichert und in `asset_logs.photo_urls` referenziert (Migration 008)
-- [x] In der Historie und im Detail-Popup werden die Fotos angezeigt (anklickbar)
-- [x] Wiederverwendbare `PhotoPicker`-Komponente für alle drei Flows
+- [x] In der Historie zeigt jedes Log-Item die Foto-Anzahl an (z. B. „+2 Fotos")
+- [x] Klick auf ein Verlaufs-Element öffnet ein Bottom-Sheet-Modal mit allen Details + Fotos
+- [x] Beim Bearbeiten eines Assets sind nur die Asset-Erstellungsfotos sichtbar/veränderbar (keine Log-Fotos)
+- [x] `force-dynamic` auf Asset-Detail-Seite (PWA + Admin) → immer frische Daten nach Navigation zurück
+
+### 🖥️ Admin-Webapp – Parität mit PWA
+- [x] Asset-Detailseite (`/admin/assets/[id]`): Log-Query um `fuel_status` + `photo_urls` erweitert
+- [x] Aktivitätslog in der Admin-Webapp nutzt `LogHistoryList`: klickbare Einträge, Foto-Badges, Detail-Modal
+- [x] `LogHistoryList` unterstützt Supabase-Join-Format (`users` als Array oder einzelnes Objekt)
+
+### 📷 Medien
+- [x] Foto-Upload pro Asset (Supabase Storage) – beim Anlegen + Bearbeiten bis zu 3 Fotos
+- [x] Schadensdokumentation mit Bild – beim Auschecken, Zurückgeben und Defekt-Melden Fotos anhängbar
+- [x] QR-Code-Sticker mit Logo generieren – `AssetQrCode` rendert auf Canvas: indigo Top-Stripe, tolio-Logo, Asset-Name, ID, Branding-Footer; Toggle zwischen Sticker- und Plain-Modus; Download + Druck
+
+### 🌍 Offline & Sync
+- [x] Offline-fähige PWA: Service Worker (`sw.js` v3) mit stale-while-revalidate für `GET /api/assets` + `GET /api/auth/me`; statische Pages gecacht
+- [x] IndexedDB-Aktionswarteschlange (`lib/offline/queue.ts`): Checkout/Checkin werden bei Offline in IndexedDB eingereiht
+- [x] `OfflineBanner` – zeigt Offline-Status, Anzahl ausstehender Aktionen, manueller „Jetzt sync"-Button, Erfolgs-Toast nach Synchronisierung
+- [x] Sync bei Verbindungswiederherstellung: `online`-Event + Background Sync API (Tag `tolio-sync`) über `SwRegister`
+- [x] SW ↔ Client Messaging: `TRIGGER_SYNC` / `SYNC_COMPLETE` für koordinierten Sync-Flow
 

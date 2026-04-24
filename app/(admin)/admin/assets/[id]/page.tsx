@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { createClient } from '@/lib/supabase/server'
 import { getSessionUser } from '@/lib/auth/permissions'
 import { notFound } from 'next/navigation'
@@ -6,18 +8,10 @@ import AssetQrCode from '@/components/admin/AssetQrCode'
 import DeleteAssetButton from '@/components/admin/DeleteAssetButton'
 import MaintenancePanel from '@/components/admin/MaintenancePanel'
 import DueDateBadge from '@/components/shared/DueDateBadge'
+import LogHistoryList from '@/components/pwa/LogHistoryList'
 import type { Asset, MaintenanceRecord } from '@/lib/types'
 
 type Params = { params: Promise<{ id: string }> }
-
-type LogEntry = {
-  id: string
-  action: string
-  mileage: number | null
-  note: string | null
-  created_at: string
-  users: { username: string }[] | null
-}
 
 export default async function AssetDetailPage({ params }: Params) {
   const { id } = await params
@@ -35,10 +29,10 @@ export default async function AssetDetailPage({ params }: Params) {
       .single(),
     supabase
       .from('asset_logs')
-      .select('id, action, mileage, note, created_at, users(username)')
+      .select('id, action, mileage, fuel_status, note, photo_urls, created_at, users(username)')
       .eq('asset_id', id)
       .order('created_at', { ascending: false })
-      .limit(20),
+      .limit(50),
     supabase
       .from('maintenance_records')
       .select('id, performed_at, description, cost, next_due_at, created_at, users(username)')
@@ -67,31 +61,16 @@ export default async function AssetDetailPage({ params }: Params) {
 
       <div className="grid grid-cols-2 gap-6">
         <AssetForm asset={asset as Asset} />
-        <AssetQrCode qrCode={asset.qr_code} assetId={asset.id} />
+        <AssetQrCode qrCode={asset.qr_code} assetId={asset.id} assetName={asset.name} />
       </div>
 
       <MaintenancePanel assetId={asset.id} records={(maintenance ?? []) as unknown as MaintenanceRecord[]} />
 
       <div className="bg-white rounded-xl border shadow-sm">
-        <div className="p-4 border-b font-semibold">Aktivitätslog</div>
-        <ul className="divide-y">
-          {logs?.map((log: LogEntry) => (
-            <li key={log.id} className="px-4 py-2 text-sm">
-              <div className="flex justify-between">
-                <span>
-                  <span className="font-medium">{log.users?.[0]?.username ?? '–'}</span>
-                  {' – '}{log.action === 'check_out' ? 'ausgecheckt' : 'eingecheckt'}
-                  {log.mileage != null ? ` · ${log.mileage.toLocaleString('de-DE')} km` : ''}
-                </span>
-                <span className="text-gray-400">{new Date(log.created_at).toLocaleString('de-DE')}</span>
-              </div>
-              {log.note && <p className="text-gray-500 text-xs mt-0.5">📝 {log.note}</p>}
-            </li>
-          ))}
-          {!logs?.length && (
-            <li className="px-4 py-6 text-center text-gray-400 text-sm">Keine Einträge.</li>
-          )}
-        </ul>
+        <div className="p-4 border-b font-semibold text-gray-900">Aktivitätslog</div>
+        <div className="p-4">
+          <LogHistoryList history={(logs ?? []) as unknown as Parameters<typeof LogHistoryList>[0]['history']} />
+        </div>
       </div>
     </div>
   )
