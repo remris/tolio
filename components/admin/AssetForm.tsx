@@ -29,6 +29,8 @@ export default function AssetForm({ asset, redirectTo }: Props) {
     next_maintenance_at: a?.vehicles?.next_maintenance_at ?? '',
     serial_no: a?.machines?.serial_no ?? '',
     manufacturer: a?.machines?.manufacturer ?? '',
+    machine_last_maintenance: a?.machines?.last_maintenance ?? '',
+    machine_next_maintenance: a?.machines?.next_maintenance ?? '',
   })
   const [photos, setPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])

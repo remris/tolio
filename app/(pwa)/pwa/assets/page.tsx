@@ -129,9 +129,11 @@ export default function PwaAssetsPage() {
     loadAssets()
   }
 
-  const filtered = assets.filter(a =>
-    a.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = assets.filter(a => {
+    if (!a.name.toLowerCase().includes(search.toLowerCase())) return false
+    if (mineOnly && !myAssetIds.has(a.id)) return false
+    return true
+  })
 
   const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
 

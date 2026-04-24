@@ -18,6 +18,8 @@ const createSchema = z.object({
   // machine fields
   serial_no: z.string().optional(),
   manufacturer: z.string().optional(),
+  machine_last_maintenance: z.string().optional(),
+  machine_next_maintenance: z.string().optional(),
 })
 
 export async function GET(req: NextRequest) {
@@ -63,7 +65,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { name, type, status, notes, license_plate, mileage, tuv_date,
-    last_maintenance_at, next_maintenance_at, serial_no, manufacturer } = parsed.data
+    last_maintenance_at, next_maintenance_at, serial_no, manufacturer,
+    machine_last_maintenance, machine_next_maintenance } = parsed.data
 
   const supabase = adminSession ? await createClient() : await createServiceClient()
 

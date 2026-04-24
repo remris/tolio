@@ -14,6 +14,8 @@ const updateSchema = z.object({
   next_maintenance_at: z.string().nullable().optional(),
   serial_no: z.string().optional(),
   manufacturer: z.string().optional(),
+  machine_last_maintenance: z.string().nullable().optional(),
+  machine_next_maintenance: z.string().nullable().optional(),
 })
 
 type Params = { params: Promise<{ id: string }> }
@@ -60,7 +62,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (!asset) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const { name, status, notes, license_plate, mileage, tuv_date,
-    last_maintenance_at, next_maintenance_at, serial_no, manufacturer } = parsed.data
+    last_maintenance_at, next_maintenance_at, serial_no, manufacturer,
+    machine_last_maintenance, machine_next_maintenance } = parsed.data
 
   if (name || status || notes !== undefined) {
     await supabase
