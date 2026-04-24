@@ -1,7 +1,7 @@
 You are a senior software engineer
 
 #Task
-das solltest du anpassen mit 3 kategorien einklappbar ähnlich zur eher so wiue mit dem beispiel im 2ten screenshot.
+Verbessere Assets.mache 3 tables damit alle ihre eigenen spzifischen rows haben können jede kategorie ist eine table dann welche zuuklappbar ist   
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture

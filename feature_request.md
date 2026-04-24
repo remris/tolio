@@ -30,6 +30,7 @@
 - [x] Asset-Status verwalten (available / in_use / broken / maintenance)
 - [x] Asset-Übersicht mit Filterung nach Typ & Status
 - [x] Asset-Übersicht mit 3 einklappbaren Kategorien (Werkzeuge / Maschinen / Fahrzeuge)
+- [x] Jede Kategorie hat eigene Tabelle mit typspezifischen Spalten (Werkzeug: Seriennr./Zustand; Maschine: Hersteller/Wartung; Fahrzeug: Kennzeichen/KM/TÜV)
 
 ### 📱 QR-Code System
 - [x] QR-Code pro Asset generieren
