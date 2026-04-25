@@ -222,4 +222,5 @@
 ## 🐛 Bugfixes
 - [x] PWA: Nach Auschecken/Zurückgeben/Defekt-Melden wurde das Item in der Inventarliste erst nach manuellem Reload aktualisiert – behoben durch `window.location.href` statt `router.push` für garantierten Seitenneulad
 - [x] PWA: Historie-Detail-Popup kam nicht weit genug hoch und Fotos wurden teilweise hinter der Bottom-Navigation versteckt – behoben durch Erhöhung auf `max-h-[90vh]` und `pb-24` Innenabstand
+- [x] PWA: Bottom-Navigation überdeckte den Slide-Up-Sheet beim Klick auf ein Historie-Item – zentraler `BottomSheet`-Komponent erstellt (`components/pwa/BottomSheet.tsx`) mit `z-[100]` und `padding-bottom: calc(env(safe-area-inset-bottom) + 5rem)` damit er stets über der Nav liegt; alle inline-Sheets in `LogHistoryList` und History-Page auf diese Komponente migriert
 

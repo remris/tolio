@@ -1,7 +1,7 @@
 You are a senior software engineer
 
 #Task
-PWA-> Historie detail das popup kommt nicht weit genug hoch und die fotos sind teilweise unter der bottom navigation
+die bottom navbar ist immenroch über dne slider der von unten hoch kommt wenn ich auf einem historie item klicke vll brauchen hier hierfür eine komponente damit das nicht noch wo anders passiert bei der pwa
 
 #OUTPUT
 -Write production-ready code

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, Wrench, Loader2, X, Gauge, Droplets } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, Wrench, Loader2, Gauge, Droplets } from 'lucide-react'
+import BottomSheet from '@/components/pwa/BottomSheet'
 
 interface LogEntry {
   id: string
@@ -119,69 +120,53 @@ export default function PwaHistoryPage() {
       )}
 
       {/* Detail popup */}
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center"
-          onClick={() => setSelected(null)}
-        >
-          <div className="absolute inset-0 bg-black/40" />
-          <div
-            className="relative bg-white rounded-t-3xl px-5 pt-5 pb-10 w-full max-w-lg shadow-2xl space-y-4"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  {typeLabel[selected.assets?.type ?? ''] ?? 'Asset'}
+      <BottomSheet
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        subtitle={selected ? (typeLabel[selected.assets?.type ?? ''] ?? 'Asset') : undefined}
+        title={selected?.assets?.name ?? '–'}
+      >
+        {selected && (
+          <div className="space-y-3">
+            <Row label="Aktion" value={selected.note?.startsWith('[DEFEKT]') ? '🔴 Defekt gemeldet' : actionConfig[selected.action]?.label ?? selected.action} />
+            <Row label="Mitarbeiter" value={selected.users?.username ?? '–'} />
+            <Row label="Zeitpunkt" value={formatDate(selected.created_at)} />
+
+            {selected.mileage != null && (
+              <Row label="Kilometerstand" value={`${selected.mileage.toLocaleString('de-DE')} km`} />
+            )}
+
+            {selected.fuel_status && (
+              <Row label="Tankstatus" value={fuelLabels[selected.fuel_status] ?? selected.fuel_status} />
+            )}
+
+            {selected.note && (
+              <div className="bg-gray-50 rounded-xl p-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Notiz</p>
+                <p className="text-sm text-gray-700">
+                  {selected.note.startsWith('[DEFEKT] ')
+                    ? selected.note.replace('[DEFEKT] ', '')
+                    : selected.note}
                 </p>
-                <h2 className="text-xl font-bold text-gray-900 mt-0.5">{selected.assets?.name ?? '–'}</h2>
               </div>
-              <button onClick={() => setSelected(null)} className="p-2 rounded-xl text-gray-400 hover:bg-gray-100">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            )}
 
-            <div className="space-y-3">
-              <Row label="Aktion" value={selected.note?.startsWith('[DEFEKT]') ? '🔴 Defekt gemeldet' : actionConfig[selected.action]?.label ?? selected.action} />
-              <Row label="Mitarbeiter" value={selected.users?.username ?? '–'} />
-              <Row label="Zeitpunkt" value={formatDate(selected.created_at)} />
-
-              {selected.mileage != null && (
-                <Row label="Kilometerstand" value={`${selected.mileage.toLocaleString('de-DE')} km`} />
-              )}
-
-              {selected.fuel_status && (
-                <Row label="Tankstatus" value={fuelLabels[selected.fuel_status] ?? selected.fuel_status} />
-              )}
-
-              {selected.note && (
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Notiz</p>
-                  <p className="text-sm text-gray-700">
-                    {selected.note.startsWith('[DEFEKT] ')
-                      ? selected.note.replace('[DEFEKT] ', '')
-                      : selected.note}
-                  </p>
+            {selected.photo_urls && selected.photo_urls.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Fotos</p>
+                <div className="flex gap-2 flex-wrap">
+                  {selected.photo_urls.map((url, i) => (
+                    <a key={i} href={url} target="_blank" rel="noreferrer" className="w-20 h-20 rounded-xl overflow-hidden border border-gray-200 block shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                    </a>
+                  ))}
                 </div>
-              )}
-
-              {selected.photo_urls && selected.photo_urls.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Fotos</p>
-                  <div className="flex gap-2 flex-wrap">
-                    {selected.photo_urls.map((url, i) => (
-                      <a key={i} href={url} target="_blank" rel="noreferrer" className="w-20 h-20 rounded-xl overflow-hidden border border-gray-200 block shrink-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </BottomSheet>
     </div>
   )
 }

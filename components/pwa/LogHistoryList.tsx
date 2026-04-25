@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { X, Image as ImageIcon } from 'lucide-react'
+import { Image as ImageIcon } from 'lucide-react'
+import BottomSheet from '@/components/pwa/BottomSheet'
 
 const actionLabel: Record<string, string> = {
   check_out: 'Ausgecheckt',
@@ -86,42 +87,27 @@ export default function LogHistoryList({ history }: Props) {
       </div>
 
       {/* Modal */}
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm"
-          onClick={() => setSelected(null)}
-        >
-          <div
-            className="bg-white rounded-t-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 pb-24 space-y-4 shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className={`w-2.5 h-2.5 rounded-full ${actionDot[selected.action] ?? 'bg-gray-400'}`} />
-                <h2 className="font-bold text-gray-900 text-lg">{actionLabel[selected.action] ?? selected.action}</h2>
+      <BottomSheet
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        title={selected ? (actionLabel[selected.action] ?? selected.action) : undefined}
+      >
+        {selected && (
+          <div className="space-y-3 text-sm text-gray-500">
+            <p><span className="font-medium text-gray-700">Von:</span> {getUsername(selected.users)}</p>
+            <p><span className="font-medium text-gray-700">Datum:</span> {new Date(selected.created_at).toLocaleString('de-DE')}</p>
+            {selected.mileage != null && (
+              <p><span className="font-medium text-gray-700">Kilometerstand:</span> {selected.mileage.toLocaleString('de-DE')} km</p>
+            )}
+            {selected.fuel_status && (
+              <p><span className="font-medium text-gray-700">Tankstatus:</span> {fuelLabels[selected.fuel_status] ?? selected.fuel_status}</p>
+            )}
+            {selected.note && (
+              <div className="bg-gray-50 rounded-xl px-4 py-3">
+                <p className="text-xs text-gray-400 mb-1">Notiz</p>
+                <p className="text-gray-800 italic">&bdquo;{selected.note}&ldquo;</p>
               </div>
-              <button onClick={() => setSelected(null)} className="p-2 rounded-full hover:bg-gray-100">
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-
-            <div className="text-sm text-gray-500 space-y-1">
-              <p><span className="font-medium text-gray-700">Von:</span> {getUsername(selected.users)}</p>
-              <p><span className="font-medium text-gray-700">Datum:</span> {new Date(selected.created_at).toLocaleString('de-DE')}</p>
-              {selected.mileage != null && (
-                <p><span className="font-medium text-gray-700">Kilometerstand:</span> {selected.mileage.toLocaleString('de-DE')} km</p>
-              )}
-              {selected.fuel_status && (
-                <p><span className="font-medium text-gray-700">Tankstatus:</span> {fuelLabels[selected.fuel_status] ?? selected.fuel_status}</p>
-              )}
-              {selected.note && (
-                <div className="mt-2 bg-gray-50 rounded-xl px-4 py-3">
-                  <p className="text-xs text-gray-400 mb-1">Notiz</p>
-                  <p className="text-gray-800 italic">&bdquo;{selected.note}&ldquo;</p>
-                </div>
-              )}
-            </div>
-
+            )}
             {selected.photo_urls && selected.photo_urls.length > 0 && (
               <div>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Fotos</p>
@@ -135,8 +121,8 @@ export default function LogHistoryList({ history }: Props) {
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </BottomSheet>
     </>
   )
 }
