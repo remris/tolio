@@ -9,7 +9,6 @@ import MaintenancePanel from '@/components/admin/MaintenancePanel'
 import DueDateBadge from '@/components/shared/DueDateBadge'
 import LogHistoryList from '@/components/pwa/LogHistoryList'
 import Link from 'next/link'
-import Image from 'next/image'
 import { ArrowLeft, Pencil } from 'lucide-react'
 import { assetStatusLabel, assetTypeLabel, formatMileage } from '@/lib/utils'
 import type { MaintenanceRecord } from '@/lib/types'
@@ -122,9 +121,15 @@ export default async function AssetDetailPage({ params }: Params) {
       {photos.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
           {photos.map((url, i) => (
-            <div key={i} className="shrink-0 w-28 h-28 rounded-xl overflow-hidden border border-gray-100">
-              <Image src={url} alt={`Foto ${i + 1}`} width={112} height={112} className="object-cover w-full h-full" />
-            </div>
+            <a key={i} href={url} target="_blank" rel="noreferrer" className="shrink-0 w-28 h-28 rounded-xl overflow-hidden border border-gray-100 block bg-gray-50">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={url}
+                alt={`Foto ${i + 1}`}
+                className="object-cover w-full h-full"
+                onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+              />
+            </a>
           ))}
         </div>
       )}

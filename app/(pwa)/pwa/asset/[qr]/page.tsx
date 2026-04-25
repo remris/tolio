@@ -11,7 +11,6 @@ import AssetDetailActions from '@/components/pwa/AssetDetailActions'
 import LogHistoryList from '@/components/pwa/LogHistoryList'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
-import Image from 'next/image'
 
 type Params = { params: Promise<{ qr: string }> }
 
@@ -107,9 +106,15 @@ export default async function AssetPwaPage({ params }: Params) {
       {photos.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
           {photos.map((url, i) => (
-            <div key={i} className="shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-gray-100">
-              <Image src={url} alt={`Foto ${i + 1}`} width={96} height={96} className="object-cover w-full h-full" />
-            </div>
+            <a key={i} href={url} target="_blank" rel="noreferrer" className="shrink-0 w-28 h-28 rounded-xl overflow-hidden border border-gray-100 block bg-gray-50">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={url}
+                alt={`Foto ${i + 1}`}
+                className="object-cover w-full h-full"
+                onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+              />
+            </a>
           ))}
         </div>
       )}

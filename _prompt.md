@@ -1,7 +1,7 @@
 You are a senior software engineer
 
 #Task
-PWA-> Inventar(assets) item -> verlauf wenn foto wird es nciht geladen vll könnten wir den +1 foto badge noch besser platzieren gerne auch das item paar pixel größer machen
+PWA-> imanges die ich bei bearbeiten hinzufgeügt habe werden beinm asset detail nicht angezeiogt
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture
