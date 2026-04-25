@@ -65,7 +65,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
       await enqueueAction({ url: endpoint, method: 'POST', body: JSON.stringify(body), label })
       setDone(action)
       setLoading(false)
-      setTimeout(() => router.push('/pwa/assets'), 1500)
+      setTimeout(() => { window.location.href = '/pwa/assets' }, 1500)
       return
     }
 
@@ -94,8 +94,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
 
     setDone(action)
     setLoading(false)
-    router.refresh()
-    setTimeout(() => { router.refresh(); router.push('/pwa/assets') }, 1200)
+    setTimeout(() => { window.location.href = '/pwa/assets' }, 1200)
   }
 
   async function handleBroken() {
@@ -116,8 +115,7 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
 
     setDone('broken')
     setLoading(false)
-    router.refresh()
-    setTimeout(() => { router.refresh(); router.push('/pwa/assets') }, 1200)
+    setTimeout(() => { window.location.href = '/pwa/assets' }, 1200)
   }
 
   if (done) {

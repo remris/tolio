@@ -28,7 +28,7 @@ export default function CompanyLoginPage() {
       setLoading(false)
       return
     }
-    router.replace('/pwa/scan')
+    router.replace('/pwa/dashboard')
   }
 
   return (

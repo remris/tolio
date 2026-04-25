@@ -92,7 +92,7 @@ export default function LogHistoryList({ history }: Props) {
           onClick={() => setSelected(null)}
         >
           <div
-            className="bg-white rounded-t-3xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 space-y-4 shadow-2xl"
+            className="bg-white rounded-t-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 pb-24 space-y-4 shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">

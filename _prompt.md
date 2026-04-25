@@ -1,7 +1,8 @@
 You are a senior software engineer
 
 #Task
-Verbessere Assets.mache 3 tables damit alle ihre eigenen spzifischen rows haben können jede kategorie ist eine table dann welche zuuklappbar ist   
+PWA-> Historie detail das popup kommt nicht weit genug hoch und die fotos sind teilweise unter der bottom navigation
+
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture
