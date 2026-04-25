@@ -1,8 +1,7 @@
 You are a senior software engineer
 
 #Task
-die bottom navbar ist immenroch über dne slider der von unten hoch kommt wenn ich auf einem historie item klicke vll brauchen hier hierfür eine komponente damit das nicht noch wo anders passiert bei der pwa
-
+PWA-> Inventar(assets) item -> verlauf wenn foto wird es nciht geladen vll könnten wir den +1 foto badge noch besser platzieren gerne auch das item paar pixel größer machen
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture

@@ -223,4 +223,5 @@
 - [x] PWA: Nach Auschecken/Zurückgeben/Defekt-Melden wurde das Item in der Inventarliste erst nach manuellem Reload aktualisiert – behoben durch `window.location.href` statt `router.push` für garantierten Seitenneulad
 - [x] PWA: Historie-Detail-Popup kam nicht weit genug hoch und Fotos wurden teilweise hinter der Bottom-Navigation versteckt – behoben durch Erhöhung auf `max-h-[90vh]` und `pb-24` Innenabstand
 - [x] PWA: Bottom-Navigation überdeckte den Slide-Up-Sheet beim Klick auf ein Historie-Item – zentraler `BottomSheet`-Komponent erstellt (`components/pwa/BottomSheet.tsx`) mit `z-[100]` und `padding-bottom: calc(env(safe-area-inset-bottom) + 5rem)` damit er stets über der Nav liegt; alle inline-Sheets in `LogHistoryList` und History-Page auf diese Komponente migriert
+- [x] PWA: Fotos im Verlauf (Asset-Detail) wurden nicht geladen – `next/image` durch natives `<img>`-Tag mit `onError`-Fallback ersetzt (Supabase-Storage-URLs benötigen keine Next.js-Domain-Config); Foto-Badge als indigo Pill mit Camera-Icon inline neben der Aktionsbeschriftung platziert; Liste-Items um 1px Padding vergrößert
 
