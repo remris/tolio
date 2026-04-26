@@ -6,8 +6,10 @@ import { notFound } from 'next/navigation'
 import AssetQrCode from '@/components/admin/AssetQrCode'
 import DeleteAssetButton from '@/components/admin/DeleteAssetButton'
 import MaintenancePanel from '@/components/admin/MaintenancePanel'
+import AssetPhotos from '@/components/admin/AssetPhotos'
 import DueDateBadge from '@/components/shared/DueDateBadge'
-import LogHistoryList from '@/components/pwa/LogHistoryList'
+import ActivityLog from '@/components/admin/ActivityLog'
+import type { LogEntry } from '@/components/admin/ActivityLog'
 import Link from 'next/link'
 import { ArrowLeft, Pencil } from 'lucide-react'
 import { assetStatusLabel, assetTypeLabel, formatMileage } from '@/lib/utils'
@@ -118,21 +120,7 @@ export default async function AssetDetailPage({ params }: Params) {
       </div>
 
       {/* Photos */}
-      {photos.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {photos.map((url, i) => (
-            <a key={i} href={url} target="_blank" rel="noreferrer" className="shrink-0 w-28 h-28 rounded-xl overflow-hidden border border-gray-100 block bg-gray-50">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={url}
-                alt={`Foto ${i + 1}`}
-                className="object-cover w-full h-full"
-                onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
-            </a>
-          ))}
-        </div>
-      )}
+      <AssetPhotos photos={photos} />
 
       {/* General details */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
@@ -202,7 +190,7 @@ export default async function AssetDetailPage({ params }: Params) {
       {/* Activity log */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
         <p className="font-semibold text-gray-900 mb-3">Aktivitätslog</p>
-        <LogHistoryList history={(logs ?? []) as unknown as Parameters<typeof LogHistoryList>[0]['history']} />
+        <ActivityLog history={(logs ?? []) as unknown as Parameters<typeof ActivityLog>[0]['history']} />
       </div>
     </div>
   )

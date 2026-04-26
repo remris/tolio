@@ -1,7 +1,7 @@
 You are a senior software engineer
 
 #Task
-PWA-> imanges die ich bei bearbeiten hinzufgeügt habe werden beinm asset detail nicht angezeiogt
+WebView-> ansicht detail aktivitätslog passt zu pwa aber nicht zu einer web version 
 #OUTPUT
 -Write production-ready code
 -Follow existing architecture

@@ -1,11 +1,13 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
+const ADMIN_ROUTES = ['/dashboard', '/assets', '/billing', '/roles', '/settings', '/users']
+
 export async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request)
   const { pathname } = request.nextUrl
 
-  const isAdminRoute = pathname.startsWith('/admin')
+  const isAdminRoute = ADMIN_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'))
   const isPwaRoute = pathname.startsWith('/pwa')
   const isAuthRoute = pathname === '/login' || pathname === '/register' || pathname === '/company-login'
 
@@ -17,7 +19,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAuthRoute && user) {
     const dashboardUrl = request.nextUrl.clone()
-    dashboardUrl.pathname = '/admin/dashboard'
+    dashboardUrl.pathname = '/dashboard'
     return NextResponse.redirect(dashboardUrl)
   }
 

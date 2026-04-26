@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Asset } from '@/lib/types'
-import { ImagePlus, X } from 'lucide-react'
+import { ImagePlus, X, AlertCircle } from 'lucide-react'
 
 interface Location { id: string; name: string }
 
@@ -229,7 +229,21 @@ export default function AssetForm({ asset, redirectTo }: Props) {
             <input type="text" value={form.license_plate} onChange={(e) => update('license_plate', e.target.value)} className={inputCls} />
           </Field>
           <Field label="Kilometerstand">
-            <input type="number" min={0} value={form.mileage} onChange={(e) => update('mileage', e.target.value)} className={inputCls} />
+            <input
+              type="number"
+              min={0}
+              value={form.mileage}
+              onChange={(e) => update('mileage', e.target.value)}
+              className={inputCls}
+            />
+            {isEdit && a?.vehicles?.mileage != null && Number(form.mileage) < a.vehicles.mileage && Number(form.mileage) > 0 && (
+              <div className="flex items-start gap-2 mt-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700">
+                  Der eingegebene Wert ({Number(form.mileage).toLocaleString('de-DE')} km) ist niedriger als der gespeicherte Kilometerstand ({a.vehicles.mileage.toLocaleString('de-DE')} km). Bitte prüfe die Eingabe.
+                </p>
+              </div>
+            )}
           </Field>
           <Field label="TÜV bis">
             <input type="date" value={form.tuv_date} onChange={(e) => update('tuv_date', e.target.value)} className={inputCls} />

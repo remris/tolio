@@ -79,9 +79,10 @@ export default function LogHistoryList({ history }: Props) {
                 <span className="text-gray-500 text-xs">von {getUsername(log.users)}</span>
                 {log.note && <p className="text-xs text-gray-400 italic truncate mt-0.5">&bdquo;{log.note}&ldquo;</p>}
               </div>
-              <span className="text-xs text-gray-400 whitespace-nowrap shrink-0 mt-0.5">
-                {new Date(log.created_at).toLocaleDateString('de-DE')}
-              </span>
+              <div className="text-xs text-gray-400 whitespace-nowrap shrink-0 mt-0.5 text-right">
+                <div>{new Date(log.created_at).toLocaleDateString('de-DE')}</div>
+                <div>{new Date(log.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
+              </div>
             </button>
           )
         })}

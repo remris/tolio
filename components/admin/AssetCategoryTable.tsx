@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ChevronDown, ChevronRight, Wrench, Cpu, Car } from 'lucide-react'
 import type { Asset } from '@/lib/types'
 import { assetStatusLabel, formatMileage } from '@/lib/utils'
@@ -19,6 +19,7 @@ const conditionLabels: Record<string, string> = {
 
 // ── Tool table ────────────────────────────────────────────────
 function ToolTable({ assets }: { assets: Asset[] }) {
+  const router = useRouter()
   return (
     <table className="w-full text-sm">
       <thead>
@@ -34,11 +35,11 @@ function ToolTable({ assets }: { assets: Asset[] }) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const t = (a as any).tools
           return (
-            <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+            <tr key={a.id} onClick={() => router.push(`/assets/${a.id}`)} className="hover:bg-gray-50 transition-colors cursor-pointer">
               <td className="px-4 py-2.5 pl-10">
-                <Link href={`/assets/${a.id}`} className="font-medium text-gray-900 hover:text-indigo-600 after:absolute after:inset-0">
+                <span className="font-medium text-gray-900 hover:text-indigo-600">
                   {a.name}
-                </Link>
+                </span>
               </td>
               <td className="px-4 py-2.5">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[a.status]}`}>
@@ -57,6 +58,7 @@ function ToolTable({ assets }: { assets: Asset[] }) {
 
 // ── Machine table ─────────────────────────────────────────────
 function MachineTable({ assets }: { assets: Asset[] }) {
+  const router = useRouter()
   return (
     <table className="w-full text-sm">
       <thead>
@@ -76,11 +78,9 @@ function MachineTable({ assets }: { assets: Asset[] }) {
             ? new Date(m.next_maintenance).toLocaleDateString('de-DE')
             : '–'
           return (
-            <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+            <tr key={a.id} onClick={() => router.push(`/assets/${a.id}`)} className="hover:bg-gray-50 transition-colors cursor-pointer">
               <td className="px-4 py-2.5 pl-10">
-                <Link href={`/assets/${a.id}`} className="font-medium text-gray-900 hover:text-indigo-600">
-                  {a.name}
-                </Link>
+                <span className="font-medium text-gray-900">{a.name}</span>
               </td>
               <td className="px-4 py-2.5">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[a.status]}`}>
@@ -100,6 +100,7 @@ function MachineTable({ assets }: { assets: Asset[] }) {
 
 // ── Vehicle table ─────────────────────────────────────────────
 function VehicleTable({ assets }: { assets: Asset[] }) {
+  const router = useRouter()
   return (
     <table className="w-full text-sm">
       <thead>
@@ -117,11 +118,9 @@ function VehicleTable({ assets }: { assets: Asset[] }) {
           const v = (a as any).vehicles
           const tuv = v?.tuv_date ? new Date(v.tuv_date).toLocaleDateString('de-DE') : '–'
           return (
-            <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+            <tr key={a.id} onClick={() => router.push(`/assets/${a.id}`)} className="hover:bg-gray-50 transition-colors cursor-pointer">
               <td className="px-4 py-2.5 pl-10">
-                <Link href={`/assets/${a.id}`} className="font-medium text-gray-900 hover:text-indigo-600">
-                  {a.name}
-                </Link>
+                <span className="font-medium text-gray-900">{a.name}</span>
               </td>
               <td className="px-4 py-2.5">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[a.status]}`}>

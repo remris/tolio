@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AssetStatus, AssetType } from '@/lib/types'
-import { CheckCircle, XCircle, LogOut, LogIn, AlertTriangle, WifiOff } from 'lucide-react'
+import { CheckCircle, XCircle, LogOut, LogIn, AlertTriangle, WifiOff, AlertCircle } from 'lucide-react'
 import PhotoPicker from './PhotoPicker'
 import { enqueueAction } from '@/lib/offline/queue'
 
@@ -37,6 +37,8 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
   const [brokenNote, setBrokenNote] = useState('')
   const [brokenPhotos, setBrokenPhotos] = useState<File[]>([])
   const [brokenPreviews, setBrokenPreviews] = useState<string[]>([])
+  const [mileageWarning, setMileageWarning] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'checkin' | 'checkout' | null>(null)
 
   const isVehicle = assetType === 'vehicle'
   const isTool = assetType === 'tool'
@@ -45,11 +47,21 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
 
   const inputCls = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50'
 
-  async function handle(action: 'checkin' | 'checkout') {
+  async function handle(action: 'checkin' | 'checkout', forceSubmit = false) {
     if (isVehicle && action === 'checkin' && !mileage) {
       setError('Kilometerstand ist beim Zurückgeben Pflicht.')
       return
     }
+    // Warn if entered mileage is lower than current
+    if (isVehicle && mileage && currentMileage != null && !forceSubmit) {
+      const entered = parseInt(mileage, 10)
+      if (!isNaN(entered) && entered < currentMileage) {
+        setPendingAction(action)
+        setMileageWarning(true)
+        return
+      }
+    }
+    setMileageWarning(false)
     setLoading(true)
     setError(null)
     const body: Record<string, unknown> = {}
@@ -193,6 +205,35 @@ export default function CheckActions({ assetId, status, assetType, currentMileag
 
   return (
     <div className="space-y-4">
+      {/* Mileage warning overlay */}
+      {mileageWarning && pendingAction && (
+        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-amber-800 text-sm">Kilometerstand zu niedrig</p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Der eingegebene Wert ({parseInt(mileage, 10).toLocaleString('de-DE')} km) ist niedriger als der aktuelle Kilometerstand ({currentMileage!.toLocaleString('de-DE')} km). Bitte prüfe die Eingabe.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handle(pendingAction, true)}
+              className="flex-1 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-amber-700 transition-colors"
+            >
+              Trotzdem fortfahren
+            </button>
+            <button
+              onClick={() => { setMileageWarning(false); setPendingAction(null) }}
+              className="px-4 py-2.5 rounded-xl border border-amber-300 text-amber-700 text-sm font-medium hover:bg-amber-100 transition-colors"
+            >
+              Korrigieren
+            </button>
+          </div>
+        </div>
+      )}
+
       <p className="font-semibold text-gray-700 text-xs uppercase tracking-wider">
         {status === 'available' ? 'Asset auschecken' : 'Asset zurückgeben'}
       </p>

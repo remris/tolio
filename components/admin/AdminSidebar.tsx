@@ -12,11 +12,13 @@ import {
   LogOut,
   Package2,
   Settings,
+  History,
 } from 'lucide-react'
 
 const nav = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, adminOnly: false },
   { label: 'Inventar', href: '/assets', icon: Wrench, adminOnly: false },
+  { label: 'Historie', href: '/history', icon: History, adminOnly: false },
   { label: 'Mitarbeiter', href: '/users', icon: Users, adminOnly: true },
   { label: 'Rollen & Rechte', href: '/roles', icon: ShieldCheck, adminOnly: true },
   { label: 'Abonnement', href: '/billing', icon: CreditCard, adminOnly: true },
