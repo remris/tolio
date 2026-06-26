@@ -3,50 +3,18 @@ import { getSessionUser } from '@/lib/auth/permissions'
 import AssetCategoryTable from '@/components/admin/AssetCategoryTable'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import {Asset} from "@/lib/types";
 
 export default async function AssetsPage() {
   const session = await getSessionUser()
   if (!session) redirect('/login')
   const supabase = await createClient()
-    const [
-        { data: assets, error: assetsError },
-        { data: vehicles, error: vehiclesError },
-        { data: machines, error: machinesError },
-        { data: tools, error: toolsError },
-    ] = await Promise.all([
-        supabase
-            .from('assets')
-            .select('*')
-            .eq('company_id', session.company_id)
-            .order('created_at', { ascending: false }),
 
-        supabase
-            .from('vehicles')
-            .select('*')
-            .eq('company_id', session.company_id),
 
-        supabase
-            .from('machines')
-            .select('*')
-            .eq('company_id', session.company_id),
-
-        supabase
-            .from('tools')
-            .select('*')
-            .eq('company_id', session.company_id),
-    ])
-
-    if (assetsError || vehiclesError || machinesError || toolsError) {
-        throw assetsError || vehiclesError || machinesError || toolsError
-    }
-
-    const assetsWithRelations :Asset[] = assets?.map(asset => ({
-        ...asset,
-        vehicles: vehicles?.find(v => v.id === asset.vehicle_id) ?? null,
-        machines: machines?.find(m => m.id === asset.machine_id) ?? null,
-        tools: tools?.find(t => t.id === asset.tool_id) ?? null,
-    })) ?? []
+  const { data: assets } = await supabase
+    .from('assets')
+    .select('*, vehicles(*), machines(*), tools(*)')
+    .eq('company_id', session.company_id)
+    .order('created_at', { ascending: false })
 
   return (
     <div className="max-w-5xl">
@@ -60,7 +28,7 @@ export default async function AssetsPage() {
         </Link>
       </div>
 
-      <AssetCategoryTable assets={assetsWithRelations} />
+      <AssetCategoryTable assets={assets ?? []} />
     </div>
   )
 }
