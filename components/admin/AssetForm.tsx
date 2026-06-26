@@ -94,7 +94,7 @@ export default function AssetForm({ asset, redirectTo }: Props) {
     const body = {
       ...form,
       mileage: Number(form.mileage),
-      maintenance_interval_months: form.maintenance_interval_months ? Number(form.maintenance_interval_months) : null,
+      maintenance_interval_months: form.maintenance_interval_months ? Number(form.maintenance_interval_months) : 0,
       location_id: form.location_id || null,
     }
 
