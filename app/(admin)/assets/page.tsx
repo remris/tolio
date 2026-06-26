@@ -3,6 +3,7 @@ import { getSessionUser } from '@/lib/auth/permissions'
 import AssetCategoryTable from '@/components/admin/AssetCategoryTable'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import {Asset} from "@/lib/types";
 
 export default async function AssetsPage() {
   const session = await getSessionUser()
@@ -40,12 +41,13 @@ export default async function AssetsPage() {
         throw assetsError || vehiclesError || machinesError || toolsError
     }
 
-    const assetsWithRelations = assets?.map(asset => ({
+    const assetsWithRelations :Asset[] = assets?.map(asset => ({
         ...asset,
         vehicles: vehicles?.find(v => v.id === asset.vehicle_id) ?? null,
         machines: machines?.find(m => m.id === asset.machine_id) ?? null,
         tools: tools?.find(t => t.id === asset.tool_id) ?? null,
     })) ?? []
+
   return (
     <div className="max-w-5xl">
       <div className="flex items-center justify-between mb-6">
@@ -58,7 +60,7 @@ export default async function AssetsPage() {
         </Link>
       </div>
 
-      <AssetCategoryTable assets={assetsWithRelations ?? []} />
+      <AssetCategoryTable assets={assetsWithRelations} />
     </div>
   )
 }
