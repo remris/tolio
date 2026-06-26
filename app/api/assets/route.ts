@@ -21,7 +21,7 @@ const createSchema = z.object({
   manufacturer: z.string().optional(),
   machine_last_maintenance: z.string().optional(),
   machine_next_maintenance: z.string().optional(),
-  maintenance_interval_months: z.number().int().min(1).max(120).optional(),
+  maintenance_interval_months: z.number().int().min(1).max(120).nullable().optional(),
   // tool fields
   tool_serial_no: z.string().optional(),
   tool_condition: z.enum(['good', 'worn', 'damaged']).optional(),
